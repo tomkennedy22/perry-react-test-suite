@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "modules": [
+    {
+      "source": "/Users/tom/Code/perry-react-test-suite/src/main.ts",
+      "package": null,
+      "stdlib": {
+        "path": [
+          "join"
+        ]
+      }
+    },
+    {
+      "source": "/private/tmp/perry-electron-compat/packages/electron/src/index.ts",
+      "package": null,
+      "stdlib": {
+        "array": [
+          "push_single"
+        ],
+        "path": [
+          "isAbsolute",
+          "join"
+        ],
+        "perry/ui": [
+          "appQuit",
+          "appRequestLoop",
+          "webviewEvaluateJs",
+          "webviewLoadUrl"
+        ],
+        "process": [
+          "cwd"
+        ]
+      }
+    },
+    {
+      "source": "/private/tmp/perry-electron-compat/packages/electron/src/preload-runtime.ts",
+      "package": null,
+      "stdlib": {}
+    }
+  ]
+}

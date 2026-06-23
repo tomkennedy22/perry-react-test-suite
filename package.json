@@ -1,0 +1,15 @@
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "description": "Representative real-world Electron app running on Perry",
+  "main": "src/main.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@perryts/perry": "^0.5.1182",
+    "electron": "file:../../../../private/tmp/perry-electron-compat/packages/electron"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "^6.0.3"
+  }
+}
