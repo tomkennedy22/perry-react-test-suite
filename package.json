@@ -8,6 +8,10 @@
     "@perryts/perry": "^0.5.1182",
     "electron": "file:../../../../private/tmp/perry-electron-compat/packages/electron"
   },
+  "scripts": {
+    "build": "/tmp/perry-electron-compat/target/release/perry compile src/main.ts -o system-explorer",
+    "start": "npm run build && ./system-explorer"
+  },
   "devDependencies": {
     "@types/node": "^26.0.0",
     "typescript": "^6.0.3"
