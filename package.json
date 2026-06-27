@@ -9,11 +9,14 @@
     "electron": "file:../../../../private/tmp/perry-electron-compat/packages/electron"
   },
   "scripts": {
-    "build": "/tmp/perry-electron-compat/target/release/perry compile src/main.ts -o system-explorer",
+    "dev:backend": "PERRY_DEV=1 ./system-explorer",
+    "dev:renderer": "vite",
+    "build": "vite build && /tmp/perry-electron-compat/target/release/perry compile src/main.ts -o system-explorer",
     "start": "npm run build && ./system-explorer"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vite": "^6.0.0"
   }
 }
