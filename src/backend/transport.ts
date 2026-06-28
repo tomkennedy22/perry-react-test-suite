@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow } from "electron"
 import * as http from "http"
 import type { AppRouter } from "./api"
+import { logger } from "./services/logger"
 
 const DEV_PORT = 3131
 
@@ -13,7 +14,10 @@ export function mountRouter(router: AppRouter, opts: RouterOpts) {
   for (const [ns, procs] of Object.entries(router)) {
     for (const [name, proc] of Object.entries(procs as Record<string, any>)) {
       if (proc._type === "query" || proc._type === "mutation") {
-        ipcMain.handle(`${ns}.${name}`, (_event, input) => proc.handler(input))
+        ipcMain.handle(`${ns}.${name}`, (_event, input) => {
+          logger.debug(`ipc ${ns}.${name}`)
+          return proc.handler(input)
+        })
       }
     }
   }

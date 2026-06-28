@@ -2,6 +2,7 @@ import { app, BrowserWindow } from "electron"
 import * as path from "path"
 import { router } from "./api"
 import { mountRouter } from "./transport"
+import { logger } from "./services/logger"
 
 const DEV = process.env.PERRY_DEV === "1"
 
@@ -13,8 +14,10 @@ const { startSubscriptions } = mountRouter(router, {
 })
 
 app.whenReady().then(() => {
+  logger.info(`Ground Control starting (${DEV ? "dev" : "prod"})`)
+
   if (DEV) {
-    console.log("Running in dev mode. Open http://localhost:5173 in your browser.")
+    logger.info("Dev mode — renderer at http://localhost:5173, API at http://localhost:3131")
     return
   }
 
@@ -28,7 +31,10 @@ app.whenReady().then(() => {
   })
 
   mainWindow.loadFile(path.join(__dirname, "..", "renderer", "dist", "index.html"))
-  mainWindow.webContents.on("did-finish-load", startSubscriptions)
+  mainWindow.webContents.on("did-finish-load", () => {
+    logger.info("Renderer loaded")
+    startSubscriptions()
+  })
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {

@@ -50,9 +50,27 @@ function FileExplorer() {
     enabled: preview !== null,
   })
 
+  const crumbs = (data?.dir ?? "").split("/").filter(Boolean)
+
   return (
     <>
-      <div className="crumbs">{data?.dir}</div>
+      <div className="crumbs">
+        <span className="crumb" onClick={() => setDir("/")}>/ </span>
+        {crumbs.map((seg, i) => {
+          const path = "/" + crumbs.slice(0, i + 1).join("/")
+          const isLast = i === crumbs.length - 1
+          return (
+            <span key={path}>
+              <span
+                className="crumb"
+                style={{ opacity: isLast ? 1 : 0.6, cursor: isLast ? "default" : "pointer" }}
+                onClick={() => !isLast && setDir(path)}
+              >{seg}</span>
+              {!isLast && <span style={{ opacity: 0.4 }}> / </span>}
+            </span>
+          )
+        })}
+      </div>
       <div id="files">
         {isLoading && <div>loading…</div>}
         {data?.entries.map((e) => (

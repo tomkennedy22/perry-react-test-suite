@@ -153,19 +153,31 @@ These unblock everything else. Do in order.
 - [x] **tRPC server in backend — deferred**: needs `perry.compilePackages` opt-in
       and runtime testing. Custom router stays for now.
 
-- [ ] **Wire TanStack Query to renderer** — install @tanstack/react-query,
-      wrap our existing api-client proxy calls in useQuery/useMutation/
-      useInfiniteQuery. Replace hooks.ts. Gives caching, background refetch,
-      stale-while-revalidate, and loading/error states for free. No tRPC
-      adapter needed — our api-client is the query function.
+- [x] **Wire TanStack Query to renderer** ✓ — @tanstack/react-query installed,
+      useQuery/useMutation in App.tsx, QueryClientProvider in renderer.tsx,
+      optimistic updates on notes save. hooks.ts trimmed to useSubscription only.
 
-- [ ] **Single dev command** — `npm run dev` starts backend HTTP server and
-      Vite concurrently, opens browser automatically. Use `concurrently` package.
-      `npm run start` = vite build + perry compile + ./app.
+- [x] **Single dev command** ✓ — `npm run dev` runs concurrently with colored
+      output, `vite --open` auto-opens browser.
 
-- [ ] **Shared logger (backend/services/logger.ts)** — write to file in
-      userData dir. Callable from backend procedures and main process. In dev
-      mode also pipes to stdout.
+- [x] **Shared logger (backend/services/logger.ts)** ✓ — writes to
+      `app.getPath("userData")/ground-control.log`, debug-logs every IPC call,
+      also pipes to stdout/stderr in dev mode.
+
+- [ ] **Set app name** — Perry defaults userData to "Perry App". Add
+      `app.setName("Ground Control")` in index.ts before any `app.getPath()`
+      call so logs and data land in `~/Library/Application Support/Ground Control/`.
+
+### Insert after Phase 1 — UI foundation
+
+- [ ] **Tailwind CSS v4** — add `@tailwindcss/vite` plugin, replace inline
+      styles in index.html with Tailwind. v4 uses CSS `@import "tailwindcss"`
+      instead of a config file.
+
+- [ ] **Shadcn/ui + primitive layer** — decide: Radix UI primitives (default)
+      or BaseUI primitives (newer option from MUI team, same Shadcn components).
+      Add Button, Card, Input, Textarea, Badge, Tooltip as a baseline.
+      Do this BEFORE TanStack Router so all routes are built with components.
 
 ### Phase 2 — Data layer
 
