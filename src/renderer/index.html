@@ -41,31 +41,7 @@
   </style>
 </head>
 <body>
-  <header>
-    <h1>System Explorer <span class="badge">Perry × Electron</span></h1>
-    <div id="clock">—</div>
-  </header>
-  <main>
-    <section class="panel left">
-      <h2>System (ipc invoke)</h2>
-      <div id="sysinfo">loading…</div>
-
-      <h2 style="margin-top:22px">Notes (persisted to userData)</h2>
-      <div class="notes">
-        <textarea id="noteInput" placeholder="Write a note, it persists to disk…"></textarea>
-        <button id="addNote">Save note</button>
-        <div id="noteList"></div>
-      </div>
-    </section>
-    <section class="panel right">
-      <h2>Home directory (ipc invoke → fs)</h2>
-      <div class="crumbs" id="crumbs"></div>
-      <div id="files">loading…</div>
-
-      <h2 style="margin-top:22px">File preview</h2>
-      <pre id="preview">Click a file to preview its contents.</pre>
-    </section>
-  </main>
-  <script type="module" src="./renderer.ts"></script>
+  <div id="root"></div>
+  <script type="module" src="./renderer.tsx"></script>
 </body>
 </html>

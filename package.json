@@ -6,7 +6,10 @@
   "license": "MIT",
   "dependencies": {
     "@perryts/perry": "^0.5.1182",
-    "electron": "file:../../../../private/tmp/perry-electron-compat/packages/electron"
+    "@vitejs/plugin-react": "^6.0.3",
+    "electron": "file:../../../../private/tmp/perry-electron-compat/packages/electron",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "scripts": {
     "dev:backend": "PERRY_DEV=1 ./system-explorer",
@@ -16,7 +19,10 @@
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "typescript": "^6.0.3",
-    "vite": "^6.0.0"
+    "vite": "^8.1.0",
+    "vite-plugin-singlefile": "^2.3.3"
   }
 }
