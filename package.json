@@ -2,7 +2,7 @@
   "name": "my-app",
   "version": "1.0.0",
   "description": "Representative real-world Electron app running on Perry",
-  "main": "src/main.ts",
+  "main": "src/backend/index.ts",
   "license": "MIT",
   "dependencies": {
     "@perryts/perry": "^0.5.1182",
@@ -12,10 +12,10 @@
     "react-dom": "^19.2.7"
   },
   "scripts": {
-    "dev:backend": "PERRY_DEV=1 ./system-explorer",
+    "dev:backend": "PERRY_DEV=1 ./ground-control",
     "dev:renderer": "vite",
-    "build": "vite build && /tmp/perry-electron-compat/target/release/perry compile src/main.ts -o system-explorer",
-    "start": "npm run build && ./system-explorer"
+    "build": "vite build && /tmp/perry-electron-compat/target/release/perry compile src/backend/index.ts -o ground-control",
+    "start": "npm run build && ./ground-control"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
