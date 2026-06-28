@@ -31,6 +31,7 @@ function RootLayout() {
             <NavLink to="/">System</NavLink>
             <NavLink to="/files">Files</NavLink>
             <NavLink to="/notes">Notes</NavLink>
+            <NavLink to="/news">News</NavLink>
           </nav>
 
           <Tooltip>

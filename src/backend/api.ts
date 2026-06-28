@@ -3,6 +3,7 @@ import * as fs from "fs"
 import * as path from "path"
 import { app } from "electron"
 import { z } from "zod"
+import { fetchTopStories } from "./services/hackernews"
 
 // ---- Procedure types ----
 
@@ -123,6 +124,10 @@ export const router = {
       const timer = setInterval(() => emit(new Date().toISOString()), 1000)
       return () => clearInterval(timer)
     }),
+  },
+
+  news: {
+    top: query(async () => fetchTopStories(30)),
   },
 }
 
