@@ -1,6 +1,7 @@
 import { useState } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { api } from "./api-client"
-import { useQuery, useSubscription } from "./hooks"
+import { useSubscription } from "./hooks"
 
 function fmtBytes(n: number) {
   if (n < 1024) return n + " B"
@@ -9,8 +10,11 @@ function fmtBytes(n: number) {
 }
 
 function SystemInfo() {
-  const { data } = useQuery(() => api.system.info.query())
-  if (!data) return <div>loading…</div>
+  const { data, isLoading } = useQuery({
+    queryKey: ["system", "info"],
+    queryFn: () => api.system.info.query(),
+  })
+  if (isLoading || !data) return <div>loading…</div>
   return (
     <>
       {[
@@ -32,21 +36,34 @@ function SystemInfo() {
 }
 
 function FileExplorer() {
-  const { data } = useQuery(() => api.fs.list.query(""))
+  const [dir, setDir] = useState("")
   const [preview, setPreview] = useState<string | null>(null)
 
-  async function openFile(name: string) {
-    if (!data) return
-    const res = await api.fs.read.query(`${data.dir}/${name}`)
-    setPreview(res.ok ? res.text : `⚠️ ${res.error}`)
-  }
+  const { data, isLoading } = useQuery({
+    queryKey: ["fs", "list", dir],
+    queryFn: () => api.fs.list.query(dir),
+  })
+
+  const { data: fileData } = useQuery({
+    queryKey: ["fs", "read", preview],
+    queryFn: () => api.fs.read.query(preview!),
+    enabled: preview !== null,
+  })
 
   return (
     <>
       <div className="crumbs">{data?.dir}</div>
       <div id="files">
+        {isLoading && <div>loading…</div>}
         {data?.entries.map((e) => (
-          <div key={e.name} className="file" onClick={() => !e.isDir && openFile(e.name)}>
+          <div
+            key={e.name}
+            className="file"
+            onClick={() => {
+              if (e.isDir) setDir(`${data.dir}/${e.name}`)
+              else setPreview(`${data.dir}/${e.name}`)
+            }}
+          >
             <span className="ic">{e.isDir ? "📁" : "📄"}</span>
             <span>{e.name}</span>
             {!e.isDir && <span className="sz">{fmtBytes(e.sizeBytes)}</span>}
@@ -54,26 +71,37 @@ function FileExplorer() {
         ))}
       </div>
       <h2 style={{ marginTop: 22 }}>File preview</h2>
-      <pre id="preview">{preview ?? "Click a file to preview its contents."}</pre>
+      <pre id="preview">
+        {fileData
+          ? fileData.ok ? fileData.text : `⚠️ ${fileData.error}`
+          : "Click a file to preview its contents."}
+      </pre>
     </>
   )
 }
 
 function Notes() {
-  const { data: initial } = useQuery(() => api.notes.load.query())
-  const [notes, setNotes] = useState<string[]>([])
+  const qc = useQueryClient()
+  const { data: notes = [] } = useQuery({
+    queryKey: ["notes"],
+    queryFn: () => api.notes.load.query(),
+  })
   const [input, setInput] = useState("")
 
-  // Sync fetched notes into state once loaded
-  if (initial && notes.length === 0 && initial.length > 0) setNotes(initial)
+  const { mutate: save } = useMutation({
+    mutationFn: (next: string[]) => api.notes.save.mutate(next),
+    onMutate: async (next) => {
+      await qc.cancelQueries({ queryKey: ["notes"] })
+      qc.setQueryData(["notes"], next)
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["notes"] }),
+  })
 
-  async function save() {
+  function addNote() {
     const v = input.trim()
     if (!v) return
-    const next = [v, ...notes]
-    setNotes(next)
     setInput("")
-    await api.notes.save.mutate(next)
+    save([v, ...notes])
   }
 
   return (
@@ -84,7 +112,7 @@ function Notes() {
         value={input}
         onChange={(e) => setInput(e.target.value)}
       />
-      <button onClick={save}>Save note</button>
+      <button onClick={addNote}>Save note</button>
       <div id="noteList">
         {notes.map((n, i) => (
           <div key={i} className="note">{n}</div>
@@ -101,7 +129,7 @@ export function App() {
     <>
       <header>
         <img src="./image.png" style={{ height: 28, borderRadius: 4 }} alt="" />
-        <h1>System Explorer <span className="badge">Perry × Electron</span></h1>
+        <h1>Ground Control <span className="badge">Perry × Electron</span></h1>
         <div id="clock">{clock ? new Date(clock).toLocaleTimeString() : "—"}</div>
       </header>
       <main>

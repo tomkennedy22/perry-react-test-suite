@@ -6,6 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "@perryts/perry": "^0.5.1182",
+    "@tanstack/react-query": "^5.101.2",
     "@vitejs/plugin-react": "^6.0.3",
     "electron": "file:../../../../private/tmp/perry-electron-compat/packages/electron",
     "react": "^19.2.7",
