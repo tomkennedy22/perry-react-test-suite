@@ -169,14 +169,12 @@ These unblock everything else. Do in order.
 
 ### Insert after Phase 1 — UI foundation
 
-- [ ] **Tailwind CSS v4** — add `@tailwindcss/vite` plugin, replace inline
-      styles in index.html with Tailwind. v4 uses CSS `@import "tailwindcss"`
-      instead of a config file.
+- [x] **Tailwind CSS v4** ✓ — `@tailwindcss/vite` plugin, `@import "tailwindcss"` in
+      styles.css, catppuccin Mocha theme tokens via `@theme`.
 
-- [ ] **Shadcn/ui + primitive layer** — decide: Radix UI primitives (default)
-      or BaseUI primitives (newer option from MUI team, same Shadcn components).
-      Add Button, Card, Input, Textarea, Badge, Tooltip as a baseline.
-      Do this BEFORE TanStack Router so all routes are built with components.
+- [x] **Shadcn/ui + BaseUI primitive layer** ✓ — full shadcn component set installed
+      with BaseUI primitives. Button, Badge, Textarea, Tooltip wired into App.tsx.
+      `cn()` helper in lib/utils.ts, `@base-ui/react` + `cva` pattern established.
 
 ### Phase 2 — Data layer
 
@@ -188,9 +186,9 @@ These unblock everything else. Do in order.
 - [ ] **Notes → SQLite CRUD** — migrate notes from JSON file to SQLite table.
       Full create/read/update/delete via tRPC procedures.
 
-- [ ] **TanStack Router (file-based routes)** — install @tanstack/router,
-      set up route tree, migrate App.tsx panels into routes/. Add loader
-      prefetching via Query (route.loader calls queryClient.ensureQueryData).
+- [x] **TanStack Router (file-based routes)** ✓ — `@tanstack/react-router` with
+      Vite plugin, hash history for file:// compat, `__root.tsx` nav layout,
+      `/` system, `/files`, `/notes` routes. Notes got delete-on-hover too.
 
 - [ ] **Public REST API example** — one route that fetches from a real public
       API (e.g. GitHub API, weather). Shows loading/error states with
