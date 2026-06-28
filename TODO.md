@@ -57,8 +57,30 @@ Install the electron package from local clone: `file:///path/to/perry/packages/e
 - **SQLite**: better-sqlite3 is a native .node addon, perry may not support it.
   Fallback: sql.js (pure JS WASM) or @sqlite.org/sqlite-wasm.
 - **perry compile entrypoint**: `__dirname` resolves relative to source file,
-  so `renderer/dist/index.html` is resolved from `src/` — keep in mind when
-  restructuring.
+  so with entry at `src/backend/index.ts`, `__dirname` is `src/backend/` and
+  renderer path must be `path.join(__dirname, "..", "renderer", "dist", "index.html")`.
+
+## Perry constraints (discovered)
+
+- **npm packages need `perry.compilePackages` opt-in**: Perry removed V8, so
+  it can't run pre-compiled JS at runtime. Any npm package used in `src/backend/`
+  must be added to both `perry.compilePackages` and `perry.allow.compilePackages`
+  in package.json. Perry then compiles those packages natively at build time.
+  Format: `"perry": { "compilePackages": ["zod"], "allow": { "compilePackages": ["zod"] } }`.
+
+- **Zod v3 works, Zod v4 does not**: Zod v4 compiles but crashes at runtime with
+  `Cannot read properties of undefined (reading 'run')`. Zod v4 restructured its
+  parse pipeline around `_zod.run()` and something in that class initialization
+  doesn't survive Perry's AOT compilation. Zod v3 works correctly. Worth filing
+  with the Perry maintainer as a Zod v4 incompatibility bug.
+
+- **Zod v3 `.default()` only fires for `undefined`, not `""`**: When the renderer
+  sends an empty string input, use `z.string().optional().parse(x) || fallback`
+  rather than `z.string().default(fallback).parse(x)`.
+
+- **tRPC server in backend**: Unknown — not yet tested. @trpc/server would also
+  need `perry.compilePackages`. May work (like Zod) or may have similar runtime
+  issues. Worth trying when we get to Phase 2.
 
 ---
 
@@ -121,23 +143,21 @@ src/
 ### Phase 1 — Restructure & foundation
 These unblock everything else. Do in order.
 
-- [ ] **Reorganize src/ into backend/ / shared/ / renderer/** — move current
-      files to new layout, update tsconfig paths and vite root, update
-      package.json scripts, update perry compile entrypoint.
+- [x] **Reorganize src/ into backend/ / shared/ / renderer/** ✓
 
-- [ ] **Zod schemas in shared/schemas.ts** — replace raw TS types in api.ts
-      with Zod schemas. Derive types with z.infer<>. Both router and renderer
-      import from shared/. This is the single source of truth for all data shapes.
+- [x] **Zod v3 in backend + shared/schemas.ts** ✓ — Zod v3 added to
+      `perry.compilePackages`; validates inputs in backend/api.ts. shared/schemas.ts
+      defines output shapes for renderer type inference. (Zod v4 compiles but
+      crashes at runtime — see Perry constraints above.)
 
-- [ ] **Migrate to actual tRPC** — replace custom router.ts with @trpc/server +
-      @trpc/client. Keeps the same dual-transport idea (IPC link in prod, HTTP
-      link in dev) but types flow automatically and it composes better as the
-      router grows. Decision point: verify tRPC works under perry's module
-      system before committing.
+- [x] **tRPC server in backend — deferred**: needs `perry.compilePackages` opt-in
+      and runtime testing. Custom router stays for now.
 
-- [ ] **Wire TanStack Query to tRPC client** — replace hooks.ts useQuery /
-      useSubscription with @tanstack/react-query + @trpc/react-query. Gives
-      caching, background refetch, loading/error states for free.
+- [ ] **Wire TanStack Query to renderer** — install @tanstack/react-query,
+      wrap our existing api-client proxy calls in useQuery/useMutation/
+      useInfiniteQuery. Replace hooks.ts. Gives caching, background refetch,
+      stale-while-revalidate, and loading/error states for free. No tRPC
+      adapter needed — our api-client is the query function.
 
 - [ ] **Single dev command** — `npm run dev` starts backend HTTP server and
       Vite concurrently, opens browser automatically. Use `concurrently` package.

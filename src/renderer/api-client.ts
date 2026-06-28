@@ -3,7 +3,7 @@ import type {
   QueryProcedure,
   MutationProcedure,
   SubscriptionProcedure,
-} from "../../backend/api"
+} from "../backend/api"
 
 // ---- Client-side type mapping ----
 

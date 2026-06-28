@@ -2,6 +2,7 @@ import * as os from "os"
 import * as fs from "fs"
 import * as path from "path"
 import { app } from "electron"
+import { z } from "zod"
 
 // ---- Procedure types ----
 
@@ -80,8 +81,8 @@ export const router = {
   },
 
   fs: {
-    list: query(async (dirPath: string) => {
-      const target = dirPath || os.homedir()
+    list: query(async (dirPath: unknown) => {
+      const target = z.string().optional().parse(dirPath) || os.homedir()
       const out: Array<{ name: string; isDir: boolean; sizeBytes: number }> = []
       for (const name of fs.readdirSync(target)) {
         if (name.startsWith(".")) continue
@@ -97,10 +98,11 @@ export const router = {
       return { dir: target, entries: out }
     }),
 
-    read: query(async (filePath: string) => {
-      const st = fs.statSync(filePath)
+    read: query(async (filePath: unknown) => {
+      const target = z.string().parse(filePath)
+      const st = fs.statSync(target)
       if (st.size > 256 * 1024) return { ok: false as const, error: "File too large to preview (>256KB)" }
-      return { ok: true as const, text: fs.readFileSync(filePath, "utf8").slice(0, 20000) }
+      return { ok: true as const, text: fs.readFileSync(target, "utf8").slice(0, 20000) }
     }),
   },
 
@@ -109,9 +111,10 @@ export const router = {
       try { return JSON.parse(fs.readFileSync(notesPath(), "utf8")) as string[] }
       catch { return [] as string[] }
     }),
-    save: mutation(async (notes: string[]) => {
-      fs.writeFileSync(notesPath(), JSON.stringify(notes, null, 2), "utf8")
-      return { ok: true as const, count: notes.length }
+    save: mutation(async (notes: unknown) => {
+      const validated = z.array(z.string()).parse(notes)
+      fs.writeFileSync(notesPath(), JSON.stringify(validated, null, 2), "utf8")
+      return { ok: true as const, count: validated.length }
     }),
   },
 

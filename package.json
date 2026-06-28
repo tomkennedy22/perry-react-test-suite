@@ -9,13 +9,24 @@
     "@vitejs/plugin-react": "^6.0.3",
     "electron": "file:../../../../private/tmp/perry-electron-compat/packages/electron",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "zod": "^3.25.76"
   },
   "scripts": {
     "dev:backend": "PERRY_DEV=1 ./ground-control",
     "dev:renderer": "vite",
     "build": "vite build && /tmp/perry-electron-compat/target/release/perry compile src/backend/index.ts -o ground-control",
     "start": "npm run build && ./ground-control"
+  },
+  "perry": {
+    "compilePackages": [
+      "zod"
+    ],
+    "allow": {
+      "compilePackages": [
+        "zod"
+      ]
+    }
   },
   "devDependencies": {
     "@types/node": "^26.0.0",

@@ -95,7 +95,7 @@ function Notes() {
 }
 
 export function App() {
-  const clock = useSubscription((opts) => api.clock.tick.subscribe(opts))
+  const clock = useSubscription<string>((opts) => api.clock.tick.subscribe(opts))
 
   return (
     <>
