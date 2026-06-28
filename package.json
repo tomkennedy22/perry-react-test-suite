@@ -6,11 +6,13 @@
   "license": "MIT",
   "dependencies": {
     "@perryts/perry": "^0.5.1182",
+    "@tailwindcss/vite": "^4.3.1",
     "@tanstack/react-query": "^5.101.2",
     "@vitejs/plugin-react": "^6.0.3",
     "electron": "file:../../../../private/tmp/perry-electron-compat/packages/electron",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "tailwindcss": "^4.3.1",
     "zod": "^3.25.76"
   },
   "scripts": {
