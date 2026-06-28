@@ -164,9 +164,8 @@ These unblock everything else. Do in order.
       `app.getPath("userData")/ground-control.log`, debug-logs every IPC call,
       also pipes to stdout/stderr in dev mode.
 
-- [ ] **Set app name** — Perry defaults userData to "Perry App". Add
-      `app.setName("Ground Control")` in index.ts before any `app.getPath()`
-      call so logs and data land in `~/Library/Application Support/Ground Control/`.
+- [x] **Set app name** ✓ — `app.setName("Ground Control")` in index.ts.
+      Logs now land in `~/Library/Application Support/Ground Control/`.
 
 ### Insert after Phase 1 — UI foundation
 

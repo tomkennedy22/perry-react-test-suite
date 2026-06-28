@@ -6,6 +6,8 @@ import { logger } from "./services/logger"
 
 const DEV = process.env.PERRY_DEV === "1"
 
+app.setName("Ground Control")
+
 let mainWindow: BrowserWindow | null = null
 
 const { startSubscriptions } = mountRouter(router, {
