@@ -275,10 +275,10 @@ These unblock everything else. Do in order.
       workaround since hiding the window has no recovery path.
       Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520989952673054780
 
-- [ ] **Deep linking / custom URL protocol** — register myapp:// protocol,
+- [backlog] **Deep linking / custom URL protocol** — register myapp:// protocol,
       handle open-url events in backend, route to correct renderer page.
 
-- [ ] **Auto-launch on startup toggle** — settings toggle that registers /
+- [backlog] **Auto-launch on startup toggle** — settings toggle that registers /
       deregisters the app with the OS login items.
 
 ### Phase 5 — Security
