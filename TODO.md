@@ -245,8 +245,12 @@ These unblock everything else. Do in order.
       (tray icon variants etc). Flagged with maintainer:
       https://discord.com/channels/1514847466938437743/1520962880261066772/1520983357406843022
 
-- [ ] **Native OS notifications** — Notification API exposed via tRPC mutation.
-      Works in both dev (browser Notification API) and prod (native).
+- [revisit] **Native OS notifications** — two paths both blocked: (1) `new
+      Notification()` from Electron main process causes linker error (symbol not
+      in electron-compat shim); (2) renderer-side `window.Notification` returns
+      `"denied"` without prompting — Perry's WebView never grants the permission
+      and `session.setPermissionRequestHandler` isn't implemented to override it.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520984379659255978
 
 - [ ] **Standard in-app keyboard shortcuts** — wire up common shortcuts inside
       the window: ⌘R reload, ⌘W close, ⌘, settings, ⌘[ / ⌘] back/forward.
@@ -284,6 +288,10 @@ These unblock everything else. Do in order.
       Reads/writes via settings procedures. Includes theme toggle, startup
       preference, etc.
 
+- [ ] **Theme toggle** — light / dark / system selector in UI. Overrides
+      `useSystemTheme()` when set to light or dark; falls back to matchMedia
+      when set to system. Persist choice to settings file.
+
 - [ ] **Modal / dialog system** — global modal stack in renderer. Triggered
       programmatically from anywhere.
 
@@ -292,3 +300,12 @@ These unblock everything else. Do in order.
 
 - [ ] **Loading / splash screen** — shown while backend initializes (DB
       migrations, first-launch setup). Hides once backend signals ready via IPC.
+
+- [ ] **News tab — open links in external browser** — clicking HN story titles
+      should call `shell.openExternal(url)` via a backend mutation so the link
+      opens in the user's default browser. `shell` is exported from electron-compat
+      and `openExternal` appears to be implemented.
+
+- [ ] **Rename app to "Perry Desktop Test Suite"** — update `app.setName()` in
+      backend/index.ts, `<title>` in index.html, window title in BrowserWindow
+      constructor, and any display strings in the UI.

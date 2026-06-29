@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/api-client"
+import { Button } from "@/components/ui/button"
 
 function InfoTable({ rows }: { rows: [string, string][] }) {
   return (
@@ -74,7 +75,7 @@ function SystemPage() {
     : []
 
   return (
-    <div className="p-6 max-w-lg flex flex-col gap-6">
+    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
       <div>
         <h1 className="text-[11px] uppercase tracking-widest text-subtext mb-4">System</h1>
         {isLoading && <div className="text-dim text-sm">loading…</div>}
@@ -84,6 +85,24 @@ function SystemPage() {
       <div>
         <h2 className="text-[11px] uppercase tracking-widest text-subtext mb-4">Window</h2>
         {windowRows.length > 0 && <InfoTable rows={windowRows} />}
+      </div>
+
+      {/* Notifications — revisit: Electron Notification not in shim, window.Notification auto-denied */}
+      <div>
+        <h2 className="text-[11px] uppercase tracking-widest text-subtext mb-4">Notifications</h2>
+        <Button
+          size="sm"
+          onClick={() => {
+            Notification.requestPermission().then((p) => {
+              console.log("[notif] permission:", p)
+              if (p === "granted") {
+                new Notification("Ground Control", { body: "Renderer notification test" })
+              }
+            })
+          }}
+        >
+          Send test notification
+        </Button>
       </div>
     </div>
   )
