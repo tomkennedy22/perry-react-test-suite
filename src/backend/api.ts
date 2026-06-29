@@ -3,7 +3,7 @@ import * as fs from "fs"
 import * as path from "path"
 import { app } from "electron"
 import { z } from "zod"
-import { BrowserWindow } from "electron"
+import { BrowserWindow, nativeTheme } from "electron"
 import { getSqlite } from "./db/client"
 import { getMainWindow } from "./window-ref"
 import { fetchTopStories } from "./services/hackernews"
@@ -87,6 +87,8 @@ export const router = {
         isResizable:  tryGet(() => (w as any).isResizable()),
         isMovable:    tryGet(() => (w as any).isMovable()),
         opacity:      tryGet(() => (w as any).getOpacity()),
+        nativeThemeDark: tryGet(() => nativeTheme.shouldUseDarkColors),
+        nativeThemeSource: tryGet(() => nativeTheme.themeSource),
       }
     }),
   },

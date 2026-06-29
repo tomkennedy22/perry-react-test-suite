@@ -237,8 +237,13 @@ These unblock everything else. Do in order.
       so state can never be saved. Needs those APIs before this is possible.
       Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520981761952055396
 
-- [ ] **Dark/light mode detection + theming** — read nativeTheme.shouldUseDarkColors
-      on launch, push changes via subscription. Renderer applies CSS class.
+- [revisit] **Dark/light mode detection + theming** — renderer-side `matchMedia`
+      works in both browser and native window; `useSystemTheme()` hook applies
+      `dark` class to `<html>` on load and reacts to OS changes.
+      `nativeTheme.shouldUseDarkColors` is hardcoded `false` in Perry (stub never
+      reads the actual OS value) — [revisit] once fixed, can drive backend decisions
+      (tray icon variants etc). Flagged with maintainer:
+      https://discord.com/channels/1514847466938437743/1520962880261066772/1520983357406843022
 
 - [ ] **Native OS notifications** — Notification API exposed via tRPC mutation.
       Works in both dev (browser Notification API) and prod (native).

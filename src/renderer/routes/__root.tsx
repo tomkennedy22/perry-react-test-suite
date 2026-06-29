@@ -1,5 +1,5 @@
 import { createRootRoute, Outlet, Link } from "@tanstack/react-router"
-import { useSubscription, useOnlineStatus } from "@/hooks"
+import { useSubscription, useOnlineStatus, useSystemTheme } from "@/hooks"
 import { api } from "@/api-client"
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
 
@@ -16,6 +16,7 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
 }
 
 function RootLayout() {
+  useSystemTheme()
   const clock = useSubscription<string>((opts) => api.clock.tick.subscribe(opts))
   const online = useOnlineStatus()
 

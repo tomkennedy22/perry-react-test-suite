@@ -68,6 +68,8 @@ function SystemPage() {
         ["Is resizable",      fmt(win.isResizable)],
         ["Is movable",        fmt(win.isMovable)],
         ["Opacity",           fmt(win.opacity)],
+        ["nativeTheme dark",  fmt(win.nativeThemeDark)],
+        ["nativeTheme source",fmt(win.nativeThemeSource)],
       ]
     : []
 
