@@ -296,10 +296,11 @@ These unblock everything else. Do in order.
       `uname -a`) and return stdout. Tests whether Perry AOT compiles Node's
       process-spawning APIs. Show output in System page.
 
-- [ ] **Perry threading** — Perry compiles TypeScript natively and may expose
-      its own worker/threading API beyond Node's `worker_threads`. Explore
-      `@perryts/perry` for any threading primitives, run CPU work off the main
-      thread, measure perf. Document what's available vs Node standard.
+- [revisit] **Perry threading** — `@perryts/threads` fails Perry AOT codegen
+      on `node_modules/@perryts/threads/dist/pool.js` (likely `worker_threads`
+      internals). Benchmark code is wired up and ready — will work once Perry
+      supports worker_threads or ships a native threading API.
+      Flagged with maintainer: [add link when posted]
 
 - [ ] **Screen API** — `screen.getPrimaryDisplay()` from electron-compat. Returns
       display resolution, scale factor, work area. Used in real apps for window

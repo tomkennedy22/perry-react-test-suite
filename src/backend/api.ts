@@ -6,6 +6,7 @@ import { app, BrowserWindow, nativeTheme, shell, dialog } from "electron"
 import { getSqlite } from "./db/client"
 import { getMainWindow } from "./window-ref"
 import { fetchTopStories } from "./services/hackernews"
+import { parallelMap } from "@perryts/threads"
 import { loadSettings, saveSettings } from "./services/settings"
 
 // ---- Procedure types ----
@@ -199,6 +200,42 @@ export const router = {
 
   news: {
     top: query(async () => fetchTopStories(30)),
+  },
+
+  threads: {
+    benchmark: mutation(async () => {
+      const N = 500_000
+      const data = Array.from({ length: N }, (_, i) => i)
+
+      // Single-threaded baseline
+      const t0 = Date.now()
+      void data.map((n) => {
+        let x = n
+        for (let i = 0; i < 100; i++) x = Math.sqrt(x * x + 1)
+        return x
+      })
+      const singleMs = Date.now() - t0
+
+      // Perry threads
+      const t1 = Date.now()
+      await parallelMap(
+        data,
+        (n: number) => {
+          let x = n
+          for (let i = 0; i < 100; i++) x = Math.sqrt(x * x + 1)
+          return x
+        },
+      )
+      const parallelMs = Date.now() - t1
+
+      return {
+        n: N,
+        singleMs,
+        parallelMs,
+        speedup: +(singleMs / parallelMs).toFixed(2),
+        workers: os.cpus().length,
+      }
+    }),
   },
 
   settings: {
