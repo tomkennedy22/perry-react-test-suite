@@ -87,6 +87,21 @@ function SystemPage() {
         {windowRows.length > 0 && <InfoTable rows={windowRows} />}
       </div>
 
+      {/* Clipboard — revisit backend: clipboard not in electron-compat shim (linker error) */}
+      <div>
+        <h2 className="text-[11px] uppercase tracking-widest text-subtext mb-4">Clipboard</h2>
+        <Button
+          size="sm"
+          onClick={() =>
+            navigator.clipboard.writeText("clipboard test from Ground Control")
+              .then(() => console.log("[clipboard] write ok"))
+              .catch((e) => console.error("[clipboard] write failed", e))
+          }
+        >
+          Copy test string
+        </Button>
+      </div>
+
       {/* Notifications — revisit: Electron Notification not in shim, window.Notification auto-denied */}
       <div>
         <h2 className="text-[11px] uppercase tracking-widest text-subtext mb-4">Notifications</h2>

@@ -264,8 +264,11 @@ These unblock everything else. Do in order.
       worth testing once other Perry APIs stabilise.
 
 
-- [ ] **Clipboard read/write** — clipboard.readText / writeText exposed as
-      tRPC procedures.
+- [x] **Clipboard write** ✓ — renderer-side `navigator.clipboard.writeText()`
+      works (macOS logs a `CFPasteboardSetExpirationDate` warning but write
+      succeeds). Backend `clipboard` from electron-compat is a linker error —
+      not in the shim. Read via `navigator.clipboard.readText()` untested but
+      likely works too.
 
 - [revisit] **Tray icon + app.activate** — `Tray` not exported from electron-compat.
       Also `app` never emits the `activate` event (dock icon click), so there's
