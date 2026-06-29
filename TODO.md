@@ -238,6 +238,11 @@ These unblock everything else. Do in order.
 - [ ] **Native OS notifications** — Notification API exposed via tRPC mutation.
       Works in both dev (browser Notification API) and prod (native).
 
+- [ ] **Standard in-app keyboard shortcuts** — wire up common shortcuts inside
+      the window: ⌘R reload, ⌘W close, ⌘, settings, ⌘[ / ⌘] back/forward.
+      In dev these work free in the browser; in prod need webContents.reload()
+      and Menu.setApplicationMenu() or registerLocalShortcut equivalents.
+
 - [ ] **Global keyboard shortcuts** — register globalShortcut in backend,
       push events to renderer via IPC. In dev, use browser keydown listener.
 
