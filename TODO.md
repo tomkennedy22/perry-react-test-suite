@@ -197,12 +197,14 @@ These unblock everything else. Do in order.
       (`/v0/topstories.json` + item hydration). News route shows rank, title,
       domain, score, comment count, time-ago. Skeleton loading state.
 
-- [ ] **WebSocket / live streaming example** — backend opens a WS connection
+- [backlog] **WebSocket / live streaming example** — backend opens a WS connection
       or generates a stream; renderer subscribes and shows live data. In dev
       uses SSE transport, in prod uses IPC push.
 
-- [ ] **Offline detection** — detect network loss in renderer, show banner.
-      Pause/resume background queries on connectivity change.
+- [x] **Offline detection** ✓ — `useOnlineStatus()` hook polls `navigator.onLine`
+      every 3s (native window doesn't fire online/offline events reliably) + listens
+      to window events for instant response in browser. Banner shown in root layout.
+      TanStack Query pauses fetches automatically via default `networkMode: 'online'`.
 
 ### Phase 3 — File system & local data
 

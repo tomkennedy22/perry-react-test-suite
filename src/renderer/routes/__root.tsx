@@ -1,5 +1,5 @@
 import { createRootRoute, Outlet, Link } from "@tanstack/react-router"
-import { useSubscription } from "@/hooks"
+import { useSubscription, useOnlineStatus } from "@/hooks"
 import { api } from "@/api-client"
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
 
@@ -17,6 +17,7 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
 
 function RootLayout() {
   const clock = useSubscription<string>((opts) => api.clock.tick.subscribe(opts))
+  const online = useOnlineStatus()
 
   return (
     <TooltipProvider>
@@ -41,6 +42,13 @@ function RootLayout() {
             <TooltipContent>{clock ?? "waiting for clock…"}</TooltipContent>
           </Tooltip>
         </header>
+
+        {!online && (
+          <div className="shrink-0 flex items-center justify-center gap-2 bg-surface px-4 py-1.5 text-[11px] text-subtext">
+            <span className="h-1.5 w-1.5 rounded-full bg-destructive inline-block" />
+            No internet connection — some features may be unavailable
+          </div>
+        )}
 
         <main className="flex-1 overflow-y-scroll overflow-x-hidden">
           <Outlet />
