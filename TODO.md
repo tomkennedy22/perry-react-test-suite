@@ -227,8 +227,9 @@ These unblock everything else. Do in order.
 
 ### Phase 4 — OS integration
 
-- [ ] **Native menus** — app menu (File, Edit, View, Window) and right-click
-      context menu on file list rows. Built in backend, triggered via IPC.
+- [revisit] **Native menus** — `Menu.setApplicationMenu` compiles and runs without
+      error but is a true no-op; macOS default AppKit menu always shown instead.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520980039368183989
 
 - [ ] **Window management** — remember and restore window size/position across
       launches (backend/services/window-state.ts). Multi-window support (open
