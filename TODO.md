@@ -296,10 +296,12 @@ These unblock everything else. Do in order.
       `uname -a`) and return stdout. Tests whether Perry AOT compiles Node's
       process-spawning APIs. Show output in System page.
 
-- [revisit] **Perry threading** — `@perryts/threads` fails Perry AOT codegen
-      on `node_modules/@perryts/threads/dist/pool.js` (likely `worker_threads`
-      internals). Benchmark code is wired up and ready — will work once Perry
-      supports worker_threads or ships a native threading API.
+- [revisit] **Perry threading** — `@perryts/threads` has two blockers: (1)
+      without `compilePackages`, Perry refuses to run its JS dist at runtime
+      (no V8); (2) with `compilePackages`, Perry tries to compile the JS dist
+      but codegen fails on `pool.js` (`worker_threads` internals). Root cause:
+      the package ships compiled `.js` only, not TypeScript source — Perry needs
+      `.ts` to compile natively. Benchmark UI is wired and ready.
       Flagged with maintainer: [add link when posted]
 
 - [ ] **Screen API** — `screen.getPrimaryDisplay()` from electron-compat. Returns

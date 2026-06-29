@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useQuery, useMutation } from "@tanstack/react-query"
-import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { api } from "@/api-client"
 import { Button } from "@/components/ui/button"
@@ -31,12 +30,6 @@ function fmt(v: unknown): string {
 
 function SystemPage() {
   const { open } = useModal()
-  const [benchResult, setBenchResult] = useState<{ n: number; singleMs: number; parallelMs: number; speedup: number; workers: number } | null>(null)
-  const { mutate: runBenchmark, isPending: benchRunning } = useMutation({
-    mutationFn: () => api.threads.benchmark.mutate(),
-    onSuccess: (r) => setBenchResult(r),
-    onError: () => toast.error("Benchmark failed — @perryts/threads may not compile under Perry AOT"),
-  })
   const { data, isLoading } = useQuery({
     queryKey: ["system", "info"],
     queryFn: () => api.system.info.query(),
@@ -131,24 +124,6 @@ function SystemPage() {
         >
           Send test notification
         </Button>
-      </div>
-
-      <div>
-        <h2 className="text-[11px] uppercase tracking-widest text-subtext mb-4">Perry Threads</h2>
-        <div className="flex flex-col gap-3">
-          <Button size="sm" onClick={() => runBenchmark()} disabled={benchRunning}>
-            {benchRunning ? "Running…" : "Run benchmark (500k items)"}
-          </Button>
-          {benchResult && (
-            <InfoTable rows={[
-              ["Items",           benchResult.n.toLocaleString()],
-              ["Workers",         String(benchResult.workers)],
-              ["Single-threaded", `${benchResult.singleMs}ms`],
-              ["parallelMap",     `${benchResult.parallelMs}ms`],
-              ["Speedup",         `${benchResult.speedup}×`],
-            ]} />
-          )}
-        </div>
       </div>
 
       <div>
