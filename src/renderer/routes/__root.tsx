@@ -21,7 +21,7 @@ function RootLayout() {
   return (
     <TooltipProvider>
       <div className="flex flex-col h-full">
-        <header className="w-full flex items-center justify-between px-4 py-2.5 bg-mantle border-b border-surface shrink-0">
+        <header className="w-full flex items-center justify-between px-4 py-2.5 border-b border-surface shrink-0">
           <div className="flex items-center gap-3">
             <img src="./image.png" className="h-6 rounded" alt="" />
             <span className="text-[14px] font-semibold">Ground Control</span>
@@ -42,7 +42,7 @@ function RootLayout() {
           </Tooltip>
         </header>
 
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-y-scroll overflow-x-hidden">
           <Outlet />
         </main>
       </div>

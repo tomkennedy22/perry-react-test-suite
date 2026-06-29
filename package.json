@@ -14,10 +14,12 @@
     "@tanstack/react-router": "^1.170.16",
     "@tanstack/router-vite-plugin": "^1.167.18",
     "@vitejs/plugin-react": "^6.0.3",
+    "better-sqlite3": "^12.11.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.4.0",
+    "drizzle-orm": "^0.45.2",
     "electron": "file:../../../../private/tmp/perry-electron-compat/packages/electron",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
@@ -45,19 +47,23 @@
   },
   "perry": {
     "compilePackages": [
-      "zod"
+      "zod",
+      "drizzle-orm"
     ],
     "allow": {
       "compilePackages": [
-        "zod"
+        "zod",
+        "drizzle-orm"
       ]
     }
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.0.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "concurrently": "^10.0.3",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^6.0.3",
     "vite": "^8.1.0",
     "vite-plugin-singlefile": "^2.3.3"

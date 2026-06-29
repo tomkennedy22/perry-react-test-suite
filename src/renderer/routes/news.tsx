@@ -47,7 +47,7 @@ function NewsPage() {
             {stories.map((story, i) => (
               <div
                 key={story.id}
-                className="flex items-start gap-3 px-6 py-3 hover:bg-mantle transition-colors cursor-pointer group"
+                className="flex items-start gap-3 px-6 py-3 transition-colors cursor-pointer group"
                 onClick={() => story.url && window.open(story.url, "_blank")}
               >
                 <span className="text-[12px] text-muted tabular-nums w-6 shrink-0 pt-0.5 text-right">

@@ -3,6 +3,7 @@ import * as fs from "fs"
 import * as path from "path"
 import { app } from "electron"
 import { z } from "zod"
+import { getSqlite } from "./db/client"
 import { fetchTopStories } from "./services/hackernews"
 
 // ---- Procedure types ----
@@ -57,12 +58,6 @@ export function subscription<TOutput>(
 
 // ---- Helpers ----
 
-function notesPath(): string {
-  const dir = app.getPath("userData")
-  try { fs.mkdirSync(dir, { recursive: true }) } catch {}
-  return path.join(dir, "notes.json")
-}
-
 // ---- Router ----
 
 export const router = {
@@ -108,14 +103,35 @@ export const router = {
   },
 
   notes: {
-    load: query(async () => {
-      try { return JSON.parse(fs.readFileSync(notesPath(), "utf8")) as string[] }
-      catch { return [] as string[] }
+    list: query(async () => {
+      return getSqlite()
+        .prepare("SELECT id, body, created_at as createdAt, updated_at as updatedAt FROM notes ORDER BY created_at DESC")
+        .all() as Array<{ id: number; body: string; createdAt: number; updatedAt: number }>
     }),
-    save: mutation(async (notes: string[]) => {
-      const validated = z.array(z.string()).parse(notes)
-      fs.writeFileSync(notesPath(), JSON.stringify(validated, null, 2), "utf8")
-      return { ok: true as const, count: validated.length }
+
+    create: mutation(async (body: string) => {
+      const validated = z.string().min(1).parse(body)
+      const now = Date.now()
+      getSqlite()
+        .prepare("INSERT INTO notes (body, created_at, updated_at) VALUES (?, ?, ?)")
+        .run(validated, now, now)
+      return { ok: true as const }
+    }),
+
+    update: mutation(async (input: { id: number; body: string }) => {
+      const { id, body } = z.object({ id: z.number(), body: z.string().min(1) }).parse(input)
+      getSqlite()
+        .prepare("UPDATE notes SET body = ?, updated_at = ? WHERE id = ?")
+        .run(body, Date.now(), id)
+      return { ok: true as const }
+    }),
+
+    delete: mutation(async (id: number) => {
+      const validated = z.number().parse(id)
+      getSqlite()
+        .prepare("DELETE FROM notes WHERE id = ?")
+        .run(validated)
+      return { ok: true as const }
     }),
   },
 

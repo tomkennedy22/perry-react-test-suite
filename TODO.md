@@ -178,21 +178,24 @@ These unblock everything else. Do in order.
 
 ### Phase 2 — Data layer
 
-- [ ] **SQLite setup (backend/db/)** — research SQLite option compatible with
-      perry (better-sqlite3 needs native .node addon — may not work; fallback
-      is sql.js pure-JS or @sqlite.org/sqlite-wasm). Set up connection
-      singleton + migration runner.
+- [x] **SQLite setup (backend/db/)** ✓ — better-sqlite3 works as a native addon.
+      Drizzle ORM added to `perry.compilePackages` but has two Perry AOT bugs:
+      (1) `.run()` on insert/update/delete silently returns null and doesn't execute;
+      (2) `INTEGER PRIMARY KEY` columns return null in SELECT results.
+      Workaround: use `getSqlite().prepare(...).run(...)` (raw better-sqlite3) for
+      all mutations and queries. Drizzle schema kept for type inference only.
 
-- [ ] **Notes → SQLite CRUD** — migrate notes from JSON file to SQLite table.
-      Full create/read/update/delete via tRPC procedures.
+- [x] **Notes → SQLite CRUD** ✓ — full create/read/update/delete working via raw
+      better-sqlite3 prepared statements. Notes page has inline edit, delete-on-hover,
+      ⌘↵ shortcut to save.
 
 - [x] **TanStack Router (file-based routes)** ✓ — `@tanstack/react-router` with
       Vite plugin, hash history for file:// compat, `__root.tsx` nav layout,
       `/` system, `/files`, `/notes` routes. Notes got delete-on-hover too.
 
-- [ ] **Public REST API example** — one route that fetches from a real public
-      API (e.g. GitHub API, weather). Shows loading/error states with
-      TanStack Query. Demonstrates the pattern for any external API call.
+- [x] **Public REST API example** ✓ — HackerNews top stories via public API
+      (`/v0/topstories.json` + item hydration). News route shows rank, title,
+      domain, score, comment count, time-ago. Skeleton loading state.
 
 - [ ] **WebSocket / live streaming example** — backend opens a WS connection
       or generates a stream; renderer subscribes and shows live data. In dev
