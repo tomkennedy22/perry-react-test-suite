@@ -1,0 +1,356 @@
+# Ground Control — Kitchen Sink TODO
+
+## What this is
+
+**Ground Control** — a developer dashboard desktop app, open-source reference
+for the Perry + Electron-compat stack. Shows GitHub PRs needing review, CI
+status, running local services/ports, a quick-note scratchpad, and live system
+stats. Tray-first so it's always one click away.
+
+Every feature earns its place:
+- GitHub API → REST fetch example + keychain for token
+- CI status → WebSocket / live polling
+- Local services → file watcher + system info
+- Notes → SQLite CRUD
+- Tray → always-on, global shortcut to surface
+- Deep linking → `groundcontrol://pr/123` opens from Slack/notifications
+- Notifications → "PR approved", "CI failed"
+
+## What's already working (scaffold)
+
+- Perry + Electron-compat compiles TypeScript to a native binary
+- BrowserWindow loads a Vite-built React renderer from `renderer/dist/index.html`
+- Dual transport: IPC in native window (`__PERRY_IPC__`), HTTP+SSE in browser dev
+- Custom tRPC-style typed router with query/mutation/subscription
+- `src/api.ts` — procedures for system info, file system, notes, clock tick
+- `src/router.ts` — mountRouter (IPC handlers + HTTP dev server on :3131)
+- `src/main.ts` — Electron entry, BrowserWindow lifecycle
+- `src/preload.js` — contextBridge exposes `__PERRY_IPC__`
+- `src/renderer/api-client.ts` — Proxy-based typed client (auto-detects IPC vs HTTP)
+- `src/renderer/App.tsx` — React UI with SystemInfo, FileExplorer, Notes, clock
+- `src/renderer/hooks.ts` — lightweight useQuery / useSubscription
+- Vite + vite-plugin-singlefile → single inlined HTML in `renderer/dist/`
+
+## How to run
+
+**Dev (browser mode):**
+```
+PERRY_DEV=1 ./system-explorer   # backend HTTP server on :3131
+npx vite                        # renderer on :5173, open in browser
+```
+
+**Native (compiled):**
+```
+npx vite build && /tmp/perry-electron-compat/target/release/perry compile src/main.ts -o system-explorer
+./system-explorer
+```
+
+**Perry must be built from source** — `feat/electron-compat` branch is not on npm.
+Clone https://github.com/PerryTS/perry, checkout `feat/electron-compat`, run
+`cargo build --release` then `cargo build --release -p perry-ui-macos`.
+Install the electron package from local clone: `file:///path/to/perry/packages/electron`.
+
+## Open questions / risks
+
+- **tRPC compat**: @trpc/server uses Node APIs — needs testing under perry's
+  module system before committing to the migration.
+- **SQLite**: better-sqlite3 is a native .node addon, perry may not support it.
+  Fallback: sql.js (pure JS WASM) or @sqlite.org/sqlite-wasm.
+- **perry compile entrypoint**: `__dirname` resolves relative to source file,
+  so with entry at `src/backend/index.ts`, `__dirname` is `src/backend/` and
+  renderer path must be `path.join(__dirname, "..", "renderer", "dist", "index.html")`.
+
+## Perry constraints (discovered)
+
+- **npm packages need `perry.compilePackages` opt-in**: Perry removed V8, so
+  it can't run pre-compiled JS at runtime. Any npm package used in `src/backend/`
+  must be added to both `perry.compilePackages` and `perry.allow.compilePackages`
+  in package.json. Perry then compiles those packages natively at build time.
+  Format: `"perry": { "compilePackages": ["zod"], "allow": { "compilePackages": ["zod"] } }`.
+
+- **Zod v3 works, Zod v4 does not**: Zod v4 compiles but crashes at runtime with
+  `Cannot read properties of undefined (reading 'run')`. Zod v4 restructured its
+  parse pipeline around `_zod.run()` and something in that class initialization
+  doesn't survive Perry's AOT compilation. Zod v3 works correctly. Worth filing
+  with the Perry maintainer as a Zod v4 incompatibility bug.
+
+- **Zod v3 `.default()` only fires for `undefined`, not `""`**: When the renderer
+  sends an empty string input, use `z.string().optional().parse(x) || fallback`
+  rather than `z.string().default(fallback).parse(x)`.
+
+- **tRPC server in backend**: Unknown — not yet tested. @trpc/server would also
+  need `perry.compilePackages`. May work (like Zod) or may have similar runtime
+  issues. Worth trying when we get to Phase 2.
+
+---
+
+# Kitchen Sink TODO
+
+## Proposed file structure
+
+```
+src/
+├── backend/                   ← Perry native process (compiled to binary)
+│   ├── index.ts               ← entry point: app, BrowserWindow lifecycle
+│   ├── preload.ts             ← contextBridge — exposes __PERRY_IPC__
+│   ├── router/
+│   │   ├── index.ts           ← assembled tRPC router (AppRouter export)
+│   │   ├── system.ts          ← os info procedures
+│   │   ├── fs.ts              ← file system procedures
+│   │   ├── notes.ts           ← notes CRUD (SQLite)
+│   │   ├── github.ts          ← GitHub API procedures (PRs, CI status)
+│   │   └── stream.ts          ← WebSocket / live data example
+│   ├── db/
+│   │   ├── client.ts          ← SQLite connection singleton
+│   │   └── migrations/        ← schema migration files
+│   ├── services/
+│   │   ├── logger.ts          ← file logger (shared with main process)
+│   │   ├── keychain.ts        ← OS credential vault
+│   │   └── window-state.ts    ← remember size/position across launches
+│   └── transport/
+│       ├── ipc.ts             ← mountRouter for IPC (prod)
+│       └── http.ts            ← mountRouter for HTTP+SSE (dev)
+├── shared/                    ← imported by BOTH sides
+│   ├── schemas.ts             ← Zod schemas (single source of truth)
+│   └── types.ts               ← derived TypeScript types (from schemas)
+└── renderer/                  ← Vite/React (browser + webview)
+    ├── main.tsx               ← createRoot + TanStack Router provider
+    ├── api/
+    │   ├── client.ts          ← tRPC client (dual transport: IPC or HTTP)
+    │   └── query.ts           ← TanStack Query client setup
+    ├── routes/                ← TanStack Router file-based routes
+    │   ├── __root.tsx         ← root layout (nav, toasts, theme)
+    │   ├── index.tsx          ← dashboard
+    │   ├── notes.tsx          ← notes route
+    │   ├── files.tsx          ← file explorer route
+    │   ├── stream.tsx         ← live data route
+    │   └── settings.tsx       ← settings window route
+    ├── components/
+    │   ├── ui/                ← base components
+    │   │   ├── Modal.tsx
+    │   │   ├── Toast.tsx
+    │   │   └── Spinner.tsx
+    │   └── ...                ← domain components
+    ├── hooks/                 ← custom hooks (offline, theme, shortcuts)
+    ├── index.html
+    └── public/                ← static assets (images, fonts)
+```
+
+---
+
+## TODO — ranked foundational first
+
+### Phase 1 — Restructure & foundation
+These unblock everything else. Do in order.
+
+- [x] **Reorganize src/ into backend/ / shared/ / renderer/** ✓
+
+- [x] **Zod v3 in backend + shared/schemas.ts** ✓ — Zod v3 added to
+      `perry.compilePackages`; validates inputs in backend/api.ts. shared/schemas.ts
+      defines output shapes for renderer type inference. (Zod v4 compiles but
+      crashes at runtime — see Perry constraints above.)
+
+- [x] **tRPC server in backend — deferred**: needs `perry.compilePackages` opt-in
+      and runtime testing. Custom router stays for now.
+
+- [x] **Wire TanStack Query to renderer** ✓ — @tanstack/react-query installed,
+      useQuery/useMutation in App.tsx, QueryClientProvider in renderer.tsx,
+      optimistic updates on notes save. hooks.ts trimmed to useSubscription only.
+
+- [x] **Single dev command** ✓ — `npm run dev` runs concurrently with colored
+      output, `vite --open` auto-opens browser.
+
+- [x] **Shared logger (backend/services/logger.ts)** ✓ — writes to
+      `app.getPath("userData")/perry-dts.log`, debug-logs every IPC call,
+      also pipes to stdout/stderr in dev mode.
+
+- [x] **Set app name** ✓ — `app.setName("Ground Control")` in index.ts.
+      Logs now land in `~/Library/Application Support/Ground Control/`.
+
+### Insert after Phase 1 — UI foundation
+
+- [x] **Tailwind CSS v4** ✓ — `@tailwindcss/vite` plugin, `@import "tailwindcss"` in
+      styles.css, catppuccin Mocha theme tokens via `@theme`.
+
+- [x] **Shadcn/ui + BaseUI primitive layer** ✓ — full shadcn component set installed
+      with BaseUI primitives. Button, Badge, Textarea, Tooltip wired into App.tsx.
+      `cn()` helper in lib/utils.ts, `@base-ui/react` + `cva` pattern established.
+
+### Phase 2 — Data layer
+
+- [x] **SQLite setup (backend/db/)** ✓ — better-sqlite3 works as a native addon.
+      Drizzle ORM added to `perry.compilePackages` but has two Perry AOT bugs:
+      (1) `.run()` on insert/update/delete silently returns null and doesn't execute;
+      (2) `INTEGER PRIMARY KEY` columns return null in SELECT results.
+      Workaround: use `getSqlite().prepare(...).run(...)` (raw better-sqlite3) for
+      all mutations and queries. Drizzle schema kept for type inference only.
+
+- [x] **Notes → SQLite CRUD** ✓ — full create/read/update/delete working via raw
+      better-sqlite3 prepared statements. Notes page has inline edit, delete-on-hover,
+      ⌘↵ shortcut to save.
+
+- [x] **TanStack Router (file-based routes)** ✓ — `@tanstack/react-router` with
+      Vite plugin, hash history for file:// compat, `__root.tsx` nav layout,
+      `/` system, `/files`, `/notes` routes. Notes got delete-on-hover too.
+
+- [x] **Public REST API example** ✓ — HackerNews top stories via public API
+      (`/v0/topstories.json` + item hydration). News route shows rank, title,
+      domain, score, comment count, time-ago. Skeleton loading state.
+
+- [backlog] **WebSocket / live streaming example** — backend opens a WS connection
+      or generates a stream; renderer subscribes and shows live data. In dev
+      uses SSE transport, in prod uses IPC push.
+
+- [x] **Offline detection** ✓ — `useOnlineStatus()` hook polls `navigator.onLine`
+      every 3s (native window doesn't fire online/offline events reliably) + listens
+      to window events for instant response in browser. Banner shown in root layout.
+      TanStack Query pauses fetches automatically via default `networkMode: 'online'`.
+
+### Phase 3 — File system & local data
+
+- [x] **Read/write app data directory** ✓ — already done via settings.get /
+      settings.set procedures writing to userData/settings.json.
+
+- [revisit] **File picker / save dialogs** — `dialog.showOpenDialog` is a v1
+      stub that always returns `{ canceled: true }`. Backend mutation is wired
+      up and ready — will work automatically once Perry implements it. Shows an
+      info toast in the meantime. Drag-and-drop works as a fallback.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1521002418144542883
+
+- [skip] **Local image / file rendering** — custom protocol registration is
+      complex Perry territory, low return. Files page previews text via fs already.
+
+- [backlog] **File watcher** — fs.watch in backend pushing updates via
+      subscription. Good reference pattern but lower priority.
+
+- [x] **Drag-and-drop files from OS** ✓ — renderer dragover/drop + dataTransfer.files.
+      Native window uses file.path (Electron adds it); browser falls back to
+      FileReader. Drop zone on Files page preview panel with blue highlight on hover.
+
+### Phase 4 — OS integration
+
+- [revisit] **Native menus** — `Menu.setApplicationMenu` compiles and runs without
+      error but is a true no-op; macOS default AppKit menu always shown instead.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520980039368183989
+
+- [revisit] **Window management** — `BrowserWindow.setSize(w,h)` works but
+      `getBounds()`/`getSize()` are not implemented and no `resize`/`move` events
+      fire from the native window. Can't read current bounds or detect resize,
+      so state can never be saved. Needs those APIs before this is possible.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520981761952055396
+
+- [revisit] **Dark/light mode detection + theming** — renderer-side `matchMedia`
+      works in both browser and native window; `useSystemTheme()` hook applies
+      `dark` class to `<html>` on load and reacts to OS changes.
+      `nativeTheme.shouldUseDarkColors` is hardcoded `false` in Perry (stub never
+      reads the actual OS value) — [revisit] once fixed, can drive backend decisions
+      (tray icon variants etc). Flagged with maintainer:
+      https://discord.com/channels/1514847466938437743/1520962880261066772/1520983357406843022
+
+- [revisit] **Native OS notifications** — two paths both blocked: (1) `new
+      Notification()` from Electron main process causes linker error (symbol not
+      in electron-compat shim); (2) renderer-side `window.Notification` returns
+      `"denied"` without prompting — Perry's WebView never grants the permission
+      and `session.setPermissionRequestHandler` isn't implemented to override it.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520984379659255978
+
+- [x] **Standard in-app keyboard shortcuts** ✓ — ⌘R reloads, ⌘[/⌘] navigate
+      history (guarded against going back past the first route). ⌘W does nothing
+      in native window — Perry controls the window lifecycle, not the WebView.
+      ⌘, deferred until settings route exists.
+
+- [revisit] **Trackpad swipe back/forward** — `allowBackForwardNavigationGestures: true`
+      in webPreferences is silently ignored by Perry's WebView. Gestures don't fire.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520992626554175528
+
+
+- [x] **Clipboard write** ✓ — renderer-side `navigator.clipboard.writeText()`
+      works (macOS logs a `CFPasteboardSetExpirationDate` warning but write
+      succeeds). Backend `clipboard` from electron-compat is a linker error —
+      not in the shim. Read via `navigator.clipboard.readText()` untested but
+      likely works too.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520991692512170045
+
+- [revisit] **Tray icon + app.activate** — `Tray` not exported from electron-compat.
+      Also `app` never emits the `activate` event (dock icon click), so there's
+      no way to reopen a closed window. Currently ⌘W calls `app.quit()` as a
+      workaround since hiding the window has no recovery path.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520989952673054780
+
+- [backlog] **Deep linking / custom URL protocol** — register myapp:// protocol,
+      handle open-url events in backend, route to correct renderer page.
+
+- [backlog] **Auto-launch on startup toggle** — settings toggle that registers /
+      deregisters the app with the OS login items.
+
+### Phase 7 — Perry runtime capabilities
+
+- [revisit] **`app` metadata** — `app.getName()` works. `app.getVersion()`
+      returns `"0.0.0"` — no package.json at runtime in compiled binary, no
+      known way to set version yet. `app.getLocale()` not in type shim and
+      unavailable at runtime. Flagged with maintainer:
+      https://discord.com/channels/1514847466938437743/1520962880261066772/1521004844230381598
+
+- [ ] **`child_process` / shell commands** — use Node's `child_process.execSync`
+      or `spawnSync` in the backend to run a shell command (e.g. `sw_vers`,
+      `uname -a`) and return stdout. Tests whether Perry AOT compiles Node's
+      process-spawning APIs. Show output in System page.
+
+- [revisit] **Perry threading** — `@perryts/threads` has two blockers: (1)
+      without `compilePackages`, Perry refuses to run its JS dist at runtime
+      (no V8); (2) with `compilePackages`, Perry tries to compile the JS dist
+      but codegen fails on `pool.js` (`worker_threads` internals). Root cause:
+      the package ships compiled `.js` only, not TypeScript source — Perry needs
+      `.ts` to compile natively. Benchmark UI is wired and ready.
+      Flagged with maintainer: [add link when posted]
+
+- [ ] **Screen API** — `screen.getPrimaryDisplay()` from electron-compat. Returns
+      display resolution, scale factor, work area. Used in real apps for window
+      positioning. Unknown if in Perry shim — good compat test. Show in System page.
+
+- [ ] **Power monitor** — `powerMonitor.on("suspend" | "resume" | "on-ac" | "on-battery")`
+      from electron-compat. Apps need this to pause sync on sleep or adjust
+      behavior on battery. Unknown if in Perry shim. Show live status + event log
+      in System page.
+
+### Phase 5 — Security
+
+- [ ] **Preload hardening** — audit contextBridge surface, ensure no
+      nodeIntegration, validate all IPC inputs in backend with Zod before
+      handling.
+
+- [ ] **Secure local storage (OS keychain)** — store secrets (API keys, tokens)
+      in OS credential vault (Keychain on macOS, Credential Manager on Windows).
+      Exposed as keychain.get / keychain.set procedures. Backend only — never
+      crosses to renderer as plaintext.
+
+### Phase 6 — UI patterns
+
+- [x] **Settings / preferences window** ✓ — `/settings` route, gear icon in
+      nav header + ⌘, shortcut. Theme picker (System/Light/Dark segmented
+      control), "Open app data folder in Finder" button (shell.openPath works),
+      "Clear all notes" with modal confirm. Theme persisted to `settings.json`
+      via backend. `ThemeProvider` context shares state between header and page.
+
+- [x] **Theme toggle** ✓ — icon button in nav cycles system → light → dark.
+      Persists to localStorage. System mode follows matchMedia and reacts to
+      OS changes. `useTheme()` hook replaces the old `useSystemTheme()`.
+
+- [x] **Modal / dialog system** ✓ — `ModalProvider` + `useModal()` hook. Single
+      global dialog driven by `open({ title, description, content, onConfirm })`.
+      Demo on System page with confirm + info variants.
+
+- [x] **Toast / notification system (in-app)** ✓ — sonner `<Toaster>` mounted
+      in renderer.tsx. Notes create/update/delete all fire success/error toasts.
+
+- [x] **Loading / splash screen** ✓ — overlay with Perry logo + pulsing bar
+      shown until first system.info query resolves. Disappears as soon as the
+      backend IPC handshake completes (typically <100ms on native window).
+
+- [x] **News tab — open links in external browser** ✓ — `shell.openExternal`
+      works. Backend mutation validates URL with Zod, calls shell.openExternal.
+      Renderer detects IPC vs browser via `window.__PERRY_IPC__` and falls back
+      to `window.open` in dev mode.
+
+- [x] **Rename app to "Perry Desktop Test Suite"** ✓ — updated app.setName(),
+      window titles, nav header, page title, DB filename, and log filename.
