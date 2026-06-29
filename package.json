@@ -42,7 +42,8 @@
     "dev": "concurrently -n backend,renderer -c cyan,magenta \"PERRY_DEV=1 ./ground-control\" \"vite --open\"",
     "dev:backend": "PERRY_DEV=1 ./ground-control",
     "dev:renderer": "vite --open",
-    "build": "vite build && /tmp/perry-electron-compat/target/release/perry compile src/backend/index.ts -o ground-control",
+    "compile": "vite build && /tmp/perry-electron-compat/target/release/perry compile src/backend/index.ts -o ground-control",
+    "build": "npm run compile",
     "start": "npm run build && ./ground-control"
   },
   "perry": {
