@@ -2,7 +2,7 @@ import * as os from "os"
 import * as fs from "fs"
 import * as path from "path"
 import { z } from "zod"
-import { app, BrowserWindow, nativeTheme, shell } from "electron"
+import { app, BrowserWindow, nativeTheme, shell, dialog } from "electron"
 import { getSqlite } from "./db/client"
 import { getMainWindow } from "./window-ref"
 import { fetchTopStories } from "./services/hackernews"
@@ -137,6 +137,15 @@ export const router = {
       const st = fs.statSync(target)
       if (st.size > 256 * 1024) return { ok: false as const, error: "File too large to preview (>256KB)" }
       return { ok: true as const, text: fs.readFileSync(target, "utf8").slice(0, 20000) }
+    }),
+
+    pick: mutation(async (opts: { directory?: boolean }) => {
+      const { directory = false } = z.object({ directory: z.boolean().optional() }).parse(opts)
+      const result = await dialog.showOpenDialog({
+        properties: directory ? ["openDirectory"] : ["openFile"],
+      })
+      if (result.canceled || result.filePaths.length === 0) return { canceled: true as const }
+      return { canceled: false as const, path: result.filePaths[0] }
     }),
   },
 

@@ -208,22 +208,24 @@ These unblock everything else. Do in order.
 
 ### Phase 3 — File system & local data
 
-- [ ] **Read/write app data directory** — settings JSON in app.getPath("userData"),
-      exposed as settings.get / settings.set tRPC procedures.
+- [x] **Read/write app data directory** ✓ — already done via settings.get /
+      settings.set procedures writing to userData/settings.json.
 
-- [ ] **File picker / save dialogs** — dialog.showOpenDialog /
-      showSaveDialog exposed via IPC. In dev mode, falls back to browser
-      File System Access API.
+- [revisit] **File picker / save dialogs** — `dialog.showOpenDialog` is a v1
+      stub that always returns `{ canceled: true }`. Backend mutation is wired
+      up and ready — will work automatically once Perry implements it. Shows an
+      info toast in the meantime. Drag-and-drop works as a fallback.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1521002418144542883
 
-- [ ] **Local image / file rendering** — register a custom protocol
-      (perry://local/...) so renderer can display arbitrary local files safely
-      without exposing raw file:// access.
+- [skip] **Local image / file rendering** — custom protocol registration is
+      complex Perry territory, low return. Files page previews text via fs already.
 
-- [ ] **File watcher** — watch a directory for external changes, push updates
-      to renderer via subscription. Uses fs.watch in backend.
+- [backlog] **File watcher** — fs.watch in backend pushing updates via
+      subscription. Good reference pattern but lower priority.
 
-- [ ] **Drag-and-drop files from OS** — renderer handles dragover/drop,
-      sends file paths to backend for processing.
+- [ ] **Drag-and-drop files from OS** — renderer dragover/drop + dataTransfer.files.
+      Native window uses file.path (Electron adds it); browser falls back to
+      FileReader. Drop zone on Files page preview panel.
 
 ### Phase 4 — OS integration
 
