@@ -252,18 +252,26 @@ These unblock everything else. Do in order.
       and `session.setPermissionRequestHandler` isn't implemented to override it.
       Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520984379659255978
 
-- [ ] **Standard in-app keyboard shortcuts** — wire up common shortcuts inside
-      the window: ⌘R reload, ⌘W close, ⌘, settings, ⌘[ / ⌘] back/forward.
-      In dev these work free in the browser; in prod need webContents.reload()
-      and Menu.setApplicationMenu() or registerLocalShortcut equivalents.
+- [x] **Standard in-app keyboard shortcuts** ✓ — ⌘R reloads, ⌘[/⌘] navigate
+      history (guarded against going back past the first route). ⌘W does nothing
+      in native window — Perry controls the window lifecycle, not the WebView.
+      ⌘, deferred until settings route exists.
 
-- [ ] **Global keyboard shortcuts** — register globalShortcut in backend,
-      push events to renderer via IPC. In dev, use browser keydown listener.
+- [ ] **Trackpad swipe back/forward** — two-finger swipe navigation like Chrome.
+      In Electron this is `allowBackForwardNavigationGestures: true` in
+      webPreferences, or handled via `webContents.on('swipe', ...)`. Neither
+      webPreferences option nor the swipe event are confirmed working in Perry —
+      worth testing once other Perry APIs stabilise.
+
 
 - [ ] **Clipboard read/write** — clipboard.readText / writeText exposed as
       tRPC procedures.
 
-- [ ] **Tray icon** — system tray with context menu. Show/hide main window.
+- [revisit] **Tray icon + app.activate** — `Tray` not exported from electron-compat.
+      Also `app` never emits the `activate` event (dock icon click), so there's
+      no way to reopen a closed window. Currently ⌘W calls `app.quit()` as a
+      workaround since hiding the window has no recovery path.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520989952673054780
 
 - [ ] **Deep linking / custom URL protocol** — register myapp:// protocol,
       handle open-url events in backend, route to correct renderer page.

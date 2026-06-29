@@ -3,7 +3,7 @@ import * as fs from "fs"
 import * as path from "path"
 import { app } from "electron"
 import { z } from "zod"
-import { BrowserWindow, nativeTheme } from "electron"
+import { app, BrowserWindow, nativeTheme } from "electron"
 import { getSqlite } from "./db/client"
 import { getMainWindow } from "./window-ref"
 import { fetchTopStories } from "./services/hackernews"
@@ -90,6 +90,11 @@ export const router = {
         nativeThemeDark: tryGet(() => nativeTheme.shouldUseDarkColors),
         nativeThemeSource: tryGet(() => nativeTheme.themeSource),
       }
+    }),
+
+    close: mutation(async () => {
+      app.quit()
+      return { ok: true as const }
     }),
   },
 
