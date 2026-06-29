@@ -231,9 +231,11 @@ These unblock everything else. Do in order.
       error but is a true no-op; macOS default AppKit menu always shown instead.
       Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520980039368183989
 
-- [ ] **Window management** — remember and restore window size/position across
-      launches (backend/services/window-state.ts). Multi-window support (open
-      settings in separate BrowserWindow).
+- [revisit] **Window management** — `BrowserWindow.setSize(w,h)` works but
+      `getBounds()`/`getSize()` are not implemented and no `resize`/`move` events
+      fire from the native window. Can't read current bounds or detect resize,
+      so state can never be saved. Needs those APIs before this is possible.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520981761952055396
 
 - [ ] **Dark/light mode detection + theming** — read nativeTheme.shouldUseDarkColors
       on launch, push changes via subscription. Renderer applies CSS class.

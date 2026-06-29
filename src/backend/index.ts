@@ -3,6 +3,7 @@ import * as path from "path"
 import { router } from "./api"
 import { mountRouter } from "./transport"
 import { logger } from "./services/logger"
+import { setMainWindow } from "./window-ref"
 
 const DEV = process.env.PERRY_DEV === "1"
 
@@ -47,6 +48,7 @@ app.whenReady().then(() => {
       preload: path.join(__dirname, "preload.js"),
     },
   })
+  setMainWindow(mainWindow)
 
   mainWindow.loadFile(path.join(__dirname, "..", "renderer", "dist", "index.html"))
   mainWindow.webContents.on("did-finish-load", () => {

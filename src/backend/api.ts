@@ -3,7 +3,9 @@ import * as fs from "fs"
 import * as path from "path"
 import { app } from "electron"
 import { z } from "zod"
+import { BrowserWindow } from "electron"
 import { getSqlite } from "./db/client"
+import { getMainWindow } from "./window-ref"
 import { fetchTopStories } from "./services/hackernews"
 
 // ---- Procedure types ----
@@ -61,6 +63,34 @@ export function subscription<TOutput>(
 // ---- Router ----
 
 export const router = {
+  window: {
+    info: query(() => {
+      const w = getMainWindow()
+      function tryGet<T>(fn: () => T): T | null {
+        try { return fn() } catch { return null }
+      }
+      return {
+        available: w !== null,
+        openCount:    tryGet(() => BrowserWindow.getAllWindows().length),
+        focusedTitle: tryGet(() => BrowserWindow.getFocusedWindow() !== null ? "yes" : "no"),
+        isDestroyed:  tryGet(() => w!.isDestroyed()),
+        bounds:       tryGet(() => (w as any).getBounds()),
+        size:         tryGet(() => (w as any).getSize()),
+        position:     tryGet(() => (w as any).getPosition()),
+        contentSize:  tryGet(() => (w as any).getContentSize()),
+        isMaximized:  tryGet(() => (w as any).isMaximized()),
+        isMinimized:  tryGet(() => (w as any).isMinimized()),
+        isFullScreen: tryGet(() => (w as any).isFullScreen()),
+        isFocused:    tryGet(() => (w as any).isFocused()),
+        isVisible:    tryGet(() => (w as any).isVisible()),
+        title:        tryGet(() => (w as any).getTitle()),
+        isResizable:  tryGet(() => (w as any).isResizable()),
+        isMovable:    tryGet(() => (w as any).isMovable()),
+        opacity:      tryGet(() => (w as any).getOpacity()),
+      }
+    }),
+  },
+
   system: {
     info: query(async () => ({
       platform: os.platform(),
