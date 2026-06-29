@@ -2,8 +2,9 @@ import * as fs from "fs"
 import * as path from "path"
 import { app } from "electron"
 
-interface Settings {
+export interface Settings {
   githubToken?: string
+  theme?: "system" | "light" | "dark"
 }
 
 function settingsPath() {

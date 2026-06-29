@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation } from "@tanstack/react-query"
 import { api } from "@/api-client"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,15 @@ function timeAgo(unixSec: number) {
 }
 
 function NewsPage() {
+  const { mutate: openExternal } = useMutation({
+    mutationFn: (url: string) => api.shell.openExternal.mutate(url),
+  })
+
+  function openUrl(url: string) {
+    if (window.__PERRY_IPC__) openExternal(url)
+    else window.open(url, "_blank")
+  }
+
   const { data: stories = [], isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ["news", "top"],
     queryFn: () => api.news.top.query(),
@@ -48,7 +57,7 @@ function NewsPage() {
               <div
                 key={story.id}
                 className="flex items-start gap-3 px-6 py-3 transition-colors cursor-pointer group"
-                onClick={() => story.url && window.open(story.url, "_blank")}
+                onClick={() => story.url && openUrl(story.url)}
               >
                 <span className="text-[12px] text-muted tabular-nums w-6 shrink-0 pt-0.5 text-right">
                   {i + 1}

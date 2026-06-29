@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { api } from "@/api-client"
 import { Button } from "@/components/ui/button"
+import { useModal } from "@/components/modal"
 
 function InfoTable({ rows }: { rows: [string, string][] }) {
   return (
@@ -27,6 +29,7 @@ function fmt(v: unknown): string {
 }
 
 function SystemPage() {
+  const { open } = useModal()
   const { data, isLoading } = useQuery({
     queryKey: ["system", "info"],
     queryFn: () => api.system.info.query(),
@@ -118,6 +121,33 @@ function SystemPage() {
         >
           Send test notification
         </Button>
+      </div>
+
+      <div>
+        <h2 className="text-[11px] uppercase tracking-widest text-subtext mb-4">Modal</h2>
+        <div className="flex flex-col gap-2">
+          <Button
+            size="sm"
+            onClick={() => open({
+              title: "Confirm action",
+              description: "This is a confirm dialog. Press Confirm to fire a toast.",
+              confirmLabel: "Confirm",
+              onConfirm: () => toast.success("Confirmed!"),
+            })}
+          >
+            Open confirm dialog
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => open({
+              title: "Info",
+              description: "This modal has no confirm action — just a close button.",
+            })}
+          >
+            Open info dialog
+          </Button>
+        </div>
       </div>
     </div>
   )

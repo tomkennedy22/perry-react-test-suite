@@ -294,27 +294,31 @@ These unblock everything else. Do in order.
 
 ### Phase 6 — UI patterns
 
-- [ ] **Settings / preferences window** — separate route or BrowserWindow.
-      Reads/writes via settings procedures. Includes theme toggle, startup
-      preference, etc.
+- [x] **Settings / preferences window** ✓ — `/settings` route, gear icon in
+      nav header + ⌘, shortcut. Theme picker (System/Light/Dark segmented
+      control), "Open app data folder in Finder" button (shell.openPath works),
+      "Clear all notes" with modal confirm. Theme persisted to `settings.json`
+      via backend. `ThemeProvider` context shares state between header and page.
 
-- [ ] **Theme toggle** — light / dark / system selector in UI. Overrides
-      `useSystemTheme()` when set to light or dark; falls back to matchMedia
-      when set to system. Persist choice to settings file.
+- [x] **Theme toggle** ✓ — icon button in nav cycles system → light → dark.
+      Persists to localStorage. System mode follows matchMedia and reacts to
+      OS changes. `useTheme()` hook replaces the old `useSystemTheme()`.
 
-- [ ] **Modal / dialog system** — global modal stack in renderer. Triggered
-      programmatically from anywhere.
+- [x] **Modal / dialog system** ✓ — `ModalProvider` + `useModal()` hook. Single
+      global dialog driven by `open({ title, description, content, onConfirm })`.
+      Demo on System page with confirm + info variants.
 
-- [ ] **Toast / notification system (in-app)** — lightweight toast stack.
-      Triggered from mutation onSuccess/onError handlers.
+- [x] **Toast / notification system (in-app)** ✓ — sonner `<Toaster>` mounted
+      in renderer.tsx. Notes create/update/delete all fire success/error toasts.
 
-- [ ] **Loading / splash screen** — shown while backend initializes (DB
-      migrations, first-launch setup). Hides once backend signals ready via IPC.
+- [x] **Loading / splash screen** ✓ — overlay with Perry logo + pulsing bar
+      shown until first system.info query resolves. Disappears as soon as the
+      backend IPC handshake completes (typically <100ms on native window).
 
-- [ ] **News tab — open links in external browser** — clicking HN story titles
-      should call `shell.openExternal(url)` via a backend mutation so the link
-      opens in the user's default browser. `shell` is exported from electron-compat
-      and `openExternal` appears to be implemented.
+- [x] **News tab — open links in external browser** ✓ — `shell.openExternal`
+      works. Backend mutation validates URL with Zod, calls shell.openExternal.
+      Renderer detects IPC vs browser via `window.__PERRY_IPC__` and falls back
+      to `window.open` in dev mode.
 
 - [x] **Rename app to "Perry Desktop Test Suite"** ✓ — updated app.setName(),
       window titles, nav header, page title, DB filename, and log filename.

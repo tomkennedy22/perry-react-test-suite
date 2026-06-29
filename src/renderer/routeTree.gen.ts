@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as NotesRouteImport } from './routes/notes'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NotesRoute = NotesRouteImport.update({
   id: '/notes',
   path: '/notes',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/files': typeof FilesRoute
   '/news': typeof NewsRoute
   '/notes': typeof NotesRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/files': typeof FilesRoute
   '/news': typeof NewsRoute
   '/notes': typeof NotesRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/files': typeof FilesRoute
   '/news': typeof NewsRoute
   '/notes': typeof NotesRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/files' | '/news' | '/notes'
+  fullPaths: '/' | '/files' | '/news' | '/notes' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/files' | '/news' | '/notes'
-  id: '__root__' | '/' | '/files' | '/news' | '/notes'
+  to: '/' | '/files' | '/news' | '/notes' | '/settings'
+  id: '__root__' | '/' | '/files' | '/news' | '/notes' | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +76,18 @@ export interface RootRouteChildren {
   FilesRoute: typeof FilesRoute
   NewsRoute: typeof NewsRoute
   NotesRoute: typeof NotesRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/notes': {
       id: '/notes'
       path: '/notes'
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   FilesRoute: FilesRoute,
   NewsRoute: NewsRoute,
   NotesRoute: NotesRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

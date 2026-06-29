@@ -1,12 +1,12 @@
 import * as os from "os"
 import * as fs from "fs"
 import * as path from "path"
-import { app } from "electron"
 import { z } from "zod"
-import { app, BrowserWindow, nativeTheme } from "electron"
+import { app, BrowserWindow, nativeTheme, shell } from "electron"
 import { getSqlite } from "./db/client"
 import { getMainWindow } from "./window-ref"
 import { fetchTopStories } from "./services/hackernews"
+import { loadSettings, saveSettings } from "./services/settings"
 
 // ---- Procedure types ----
 
@@ -110,6 +110,7 @@ export const router = {
       uptimeSec: Math.round(os.uptime()),
       release: os.release(),
       homedir: os.homedir(),
+      userData: app.getPath("userData"),
     })),
   },
 
@@ -170,6 +171,11 @@ export const router = {
         .run(validated)
       return { ok: true as const }
     }),
+
+    clearAll: mutation(async () => {
+      getSqlite().prepare("DELETE FROM notes").run()
+      return { ok: true as const }
+    }),
   },
 
   clock: {
@@ -181,6 +187,31 @@ export const router = {
 
   news: {
     top: query(async () => fetchTopStories(30)),
+  },
+
+  settings: {
+    get: query(async () => loadSettings()),
+    set: mutation(async (patch: { theme?: "system" | "light" | "dark" }) => {
+      const validated = z.object({
+        theme: z.enum(["system", "light", "dark"]).optional(),
+      }).parse(patch)
+      saveSettings(validated)
+      return { ok: true as const }
+    }),
+  },
+
+  shell: {
+    openExternal: mutation(async (url: string) => {
+      const validated = z.string().url().parse(url)
+      await shell.openExternal(validated)
+      return { ok: true as const }
+    }),
+
+    openPath: mutation(async (filePath: string) => {
+      const validated = z.string().min(1).parse(filePath)
+      await shell.openPath(validated)
+      return { ok: true as const }
+    }),
   },
 }
 

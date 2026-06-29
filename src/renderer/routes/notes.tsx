@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { api } from "@/api-client"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -29,12 +30,19 @@ function NotesPage() {
     onSuccess: () => {
       setInput("")
       qc.invalidateQueries({ queryKey: ["notes"] })
+      toast.success("Note saved")
     },
+    onError: () => toast.error("Failed to save note"),
   })
 
   const { mutate: update } = useMutation({
     mutationFn: (input: { id: number; body: string }) => api.notes.update.mutate(input),
-    onSuccess: () => { setEditingId(null); qc.invalidateQueries({ queryKey: ["notes"] }) },
+    onSuccess: () => {
+      setEditingId(null)
+      qc.invalidateQueries({ queryKey: ["notes"] })
+      toast.success("Note updated")
+    },
+    onError: () => toast.error("Failed to update note"),
   })
 
   const { mutate: remove } = useMutation({
@@ -42,6 +50,11 @@ function NotesPage() {
     onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: ["notes"] })
       qc.setQueryData(["notes"], (old: typeof notes) => old.filter((n) => n.id !== id))
+    },
+    onSuccess: () => toast.success("Note deleted"),
+    onError: () => {
+      qc.invalidateQueries({ queryKey: ["notes"] })
+      toast.error("Failed to delete note")
     },
     onSettled: () => qc.invalidateQueries({ queryKey: ["notes"] }),
   })

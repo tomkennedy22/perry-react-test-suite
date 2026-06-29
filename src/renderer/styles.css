@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 
 @theme {
   --color-base: #1e1e2e;
@@ -33,8 +33,8 @@
     font-size: 13px;
     line-height: 1.5;
     margin: 0;
-    background-color: var(--color-base);
-    color: var(--color-text);
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
   html {
