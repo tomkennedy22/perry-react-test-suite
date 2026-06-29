@@ -46,6 +46,7 @@ app.whenReady().then(() => {
     title: "Ground Control",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
+      allowBackForwardNavigationGestures: true,
     },
   })
   setMainWindow(mainWindow)

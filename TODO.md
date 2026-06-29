@@ -257,11 +257,9 @@ These unblock everything else. Do in order.
       in native window — Perry controls the window lifecycle, not the WebView.
       ⌘, deferred until settings route exists.
 
-- [ ] **Trackpad swipe back/forward** — two-finger swipe navigation like Chrome.
-      In Electron this is `allowBackForwardNavigationGestures: true` in
-      webPreferences, or handled via `webContents.on('swipe', ...)`. Neither
-      webPreferences option nor the swipe event are confirmed working in Perry —
-      worth testing once other Perry APIs stabilise.
+- [revisit] **Trackpad swipe back/forward** — `allowBackForwardNavigationGestures: true`
+      in webPreferences is silently ignored by Perry's WebView. Gestures don't fire.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520992626554175528
 
 
 - [x] **Clipboard write** ✓ — renderer-side `navigator.clipboard.writeText()`
@@ -269,6 +267,7 @@ These unblock everything else. Do in order.
       succeeds). Backend `clipboard` from electron-compat is a linker error —
       not in the shim. Read via `navigator.clipboard.readText()` untested but
       likely works too.
+      Flagged with maintainer: https://discord.com/channels/1514847466938437743/1520962880261066772/1520991692512170045
 
 - [revisit] **Tray icon + app.activate** — `Tray` not exported from electron-compat.
       Also `app` never emits the `activate` event (dock icon click), so there's
