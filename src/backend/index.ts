@@ -7,7 +7,7 @@ import { setMainWindow } from "./window-ref"
 
 const DEV = process.env.PERRY_DEV === "1"
 
-app.setName("Ground Control")
+app.setName("Perry Desktop Test Suite")
 
 
 let mainWindow: BrowserWindow | null = null
@@ -24,7 +24,7 @@ const { startSubscriptions } = mountRouter(router, {
 // import { Menu } from "electron"
 // app.whenReady().then(() => {
 //   Menu.setApplicationMenu(Menu.buildFromTemplate([
-//     { label: "Ground Control", submenu: [{ role: "about" }, { type: "separator" }, { role: "quit" }] },
+//     { label: "Perry Desktop Test Suite", submenu: [{ role: "about" }, { type: "separator" }, { role: "quit" }] },
 //     { label: "Edit", submenu: [{ role: "undo" }, { role: "redo" }, { type: "separator" }, { role: "cut" }, { role: "copy" }, { role: "paste" }, { role: "selectAll" }] },
 //     { label: "View", submenu: [{ role: "reload" }, { role: "toggleDevTools" }, { type: "separator" }, { role: "togglefullscreen" }] },
 //     { label: "Window", submenu: [{ role: "minimize" }, { role: "zoom" }, { type: "separator" }, { role: "front" }] },
@@ -32,7 +32,7 @@ const { startSubscriptions } = mountRouter(router, {
 // })
 
 app.whenReady().then(() => {
-  logger.info(`Ground Control starting (${DEV ? "dev" : "prod"})`)
+  logger.info(`Perry Desktop Test Suite starting (${DEV ? "dev" : "prod"})`)
 
 
   if (DEV) {
@@ -43,7 +43,7 @@ app.whenReady().then(() => {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 640,
-    title: "Ground Control",
+    title: "Perry Desktop Test Suite",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       allowBackForwardNavigationGestures: true,
@@ -62,7 +62,7 @@ app.whenReady().then(() => {
       mainWindow = new BrowserWindow({
         width: 900,
         height: 640,
-        title: "Ground Control",
+        title: "Perry Desktop Test Suite",
         webPreferences: { preload: path.join(__dirname, "preload.js") },
       })
       mainWindow.loadFile(path.join(__dirname, "..", "renderer", "dist", "index.html"))

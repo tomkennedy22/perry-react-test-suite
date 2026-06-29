@@ -93,7 +93,7 @@ function SystemPage() {
         <Button
           size="sm"
           onClick={() =>
-            navigator.clipboard.writeText("clipboard test from Ground Control")
+            navigator.clipboard.writeText("clipboard test from Perry Desktop Test Suite")
               .then(() => console.log("[clipboard] write ok"))
               .catch((e) => console.error("[clipboard] write failed", e))
           }
@@ -111,7 +111,7 @@ function SystemPage() {
             Notification.requestPermission().then((p) => {
               console.log("[notif] permission:", p)
               if (p === "granted") {
-                new Notification("Ground Control", { body: "Renderer notification test" })
+                new Notification("Perry Desktop Test Suite", { body: "Renderer notification test" })
               }
             })
           }}

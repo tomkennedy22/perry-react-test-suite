@@ -57,7 +57,7 @@ Before running dev mode you need a compiled binary:
 npm run compile
 ```
 
-This runs `vite build` (renderer) then `perry compile` (backend), producing `./ground-control`.
+This runs `vite build` (renderer) then `perry compile` (backend), producing `./perry-dts`.
 
 ## Running
 
@@ -79,8 +79,8 @@ npm run dev:renderer   # renderer only
 ### Native window (compiled)
 
 ```bash
-npm run compile    # vite build + perry compile → ./ground-control
-./ground-control   # launch native window
+npm run compile    # vite build + perry compile → ./perry-dts
+./perry-dts   # launch native window
 ```
 
 Or build and launch in one step:
@@ -101,7 +101,7 @@ src/
 │   │   ├── client.ts         ← better-sqlite3 singleton (getDb / getSqlite)
 │   │   └── schema.ts         ← Drizzle schema (type inference only)
 │   ├── services/
-│   │   ├── logger.ts         ← file logger → ~/Library/.../ground-control.log
+│   │   ├── logger.ts         ← file logger → ~/Library/.../perry-dts.log
 │   │   └── hackernews.ts     ← HN top stories via public API
 │   └── window-ref.ts         ← shared mainWindow reference
 └── renderer/                 ← Vite/React (browser + webview)

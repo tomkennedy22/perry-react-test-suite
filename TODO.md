@@ -161,7 +161,7 @@ These unblock everything else. Do in order.
       output, `vite --open` auto-opens browser.
 
 - [x] **Shared logger (backend/services/logger.ts)** ✓ — writes to
-      `app.getPath("userData")/ground-control.log`, debug-logs every IPC call,
+      `app.getPath("userData")/perry-dts.log`, debug-logs every IPC call,
       also pipes to stdout/stderr in dev mode.
 
 - [x] **Set app name** ✓ — `app.setName("Ground Control")` in index.ts.
@@ -316,6 +316,5 @@ These unblock everything else. Do in order.
       opens in the user's default browser. `shell` is exported from electron-compat
       and `openExternal` appears to be implemented.
 
-- [ ] **Rename app to "Perry Desktop Test Suite"** — update `app.setName()` in
-      backend/index.ts, `<title>` in index.html, window title in BrowserWindow
-      constructor, and any display strings in the UI.
+- [x] **Rename app to "Perry Desktop Test Suite"** ✓ — updated app.setName(),
+      window titles, nav header, page title, DB filename, and log filename.

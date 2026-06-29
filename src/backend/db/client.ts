@@ -8,7 +8,7 @@ import * as schema from "./schema"
 function dbPath() {
   const dir = app.getPath("userData")
   try { fs.mkdirSync(dir, { recursive: true }) } catch {}
-  return path.join(dir, "ground-control.db")
+  return path.join(dir, "perry-desktop-test-suite.db")
 }
 
 function init() {

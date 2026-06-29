@@ -5,7 +5,7 @@ import { app } from "electron"
 type Level = "info" | "warn" | "error" | "debug"
 
 function logFilePath() {
-  return path.join(app.getPath("userData"), "ground-control.log")
+  return path.join(app.getPath("userData"), "perry-desktop-test-suite.log")
 }
 
 function write(level: Level, msg: string) {

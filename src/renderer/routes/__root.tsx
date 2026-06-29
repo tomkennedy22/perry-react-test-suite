@@ -29,7 +29,7 @@ function RootLayout() {
         <header className="w-full flex items-center justify-between px-4 py-2.5 border-b border-surface shrink-0">
           <div className="flex items-center gap-3">
             <img src="./perry-icon.svg" className="h-6" alt="Perry" />
-            <span className="text-[14px] font-semibold">Ground Control</span>
+            <span className="text-[14px] font-semibold">Perry Desktop Test Suite</span>
           </div>
 
           <nav className="flex items-center gap-1">

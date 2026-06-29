@@ -39,12 +39,12 @@
     "zod": "^3.25.76"
   },
   "scripts": {
-    "dev": "concurrently -n backend,renderer -c cyan,magenta \"PERRY_DEV=1 ./ground-control\" \"vite --open\"",
-    "dev:backend": "PERRY_DEV=1 ./ground-control",
+    "dev": "concurrently -n backend,renderer -c cyan,magenta \"PERRY_DEV=1 ./perry-dts\" \"vite --open\"",
+    "dev:backend": "PERRY_DEV=1 ./perry-dts",
     "dev:renderer": "vite --open",
-    "compile": "vite build && /tmp/perry-electron-compat/target/release/perry compile src/backend/index.ts -o ground-control",
+    "compile": "vite build && /tmp/perry-electron-compat/target/release/perry compile src/backend/index.ts -o perry-dts",
     "build": "npm run compile",
-    "start": "npm run build && ./ground-control"
+    "start": "npm run build && ./perry-dts"
   },
   "perry": {
     "compilePackages": [

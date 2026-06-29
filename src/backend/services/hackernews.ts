@@ -4,7 +4,7 @@ function get(path: string): Promise<any> {
   return new Promise((resolve, reject) => {
     https
       .get(
-        { hostname: "hacker-news.firebaseio.com", path, headers: { "User-Agent": "Ground-Control/1.0" } },
+        { hostname: "hacker-news.firebaseio.com", path, headers: { "User-Agent": "Perry-Desktop-Test-Suite/1.0" } },
         (res) => {
           let body = ""
           res.on("data", (c: string) => (body += c))
