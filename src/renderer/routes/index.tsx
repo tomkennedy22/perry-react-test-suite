@@ -50,6 +50,9 @@ function SystemPage() {
         ["Memory", `${data.freeMemMB} / ${data.totalMemMB} MB free`],
         ["Uptime", `${Math.round(data.uptimeSec / 60)} min`],
         ["Release", data.release],
+        ["App name", fmt(data.appName)],
+        ["App version", fmt(data.appVersion)],
+        ["App locale", fmt(data.appLocale)],
       ]
     : []
 

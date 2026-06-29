@@ -223,9 +223,9 @@ These unblock everything else. Do in order.
 - [backlog] **File watcher** — fs.watch in backend pushing updates via
       subscription. Good reference pattern but lower priority.
 
-- [ ] **Drag-and-drop files from OS** — renderer dragover/drop + dataTransfer.files.
+- [x] **Drag-and-drop files from OS** ✓ — renderer dragover/drop + dataTransfer.files.
       Native window uses file.path (Electron adds it); browser falls back to
-      FileReader. Drop zone on Files page preview panel.
+      FileReader. Drop zone on Files page preview panel with blue highlight on hover.
 
 ### Phase 4 — OS integration
 
@@ -282,6 +282,33 @@ These unblock everything else. Do in order.
 
 - [backlog] **Auto-launch on startup toggle** — settings toggle that registers /
       deregisters the app with the OS login items.
+
+### Phase 7 — Perry runtime capabilities
+
+- [revisit] **`app` metadata** — `app.getName()` works. `app.getVersion()`
+      returns `"0.0.0"` — no package.json at runtime in compiled binary, no
+      known way to set version yet. `app.getLocale()` not in type shim and
+      unavailable at runtime. Flagged with maintainer:
+      https://discord.com/channels/1514847466938437743/1520962880261066772/1521004844230381598
+
+- [ ] **`child_process` / shell commands** — use Node's `child_process.execSync`
+      or `spawnSync` in the backend to run a shell command (e.g. `sw_vers`,
+      `uname -a`) and return stdout. Tests whether Perry AOT compiles Node's
+      process-spawning APIs. Show output in System page.
+
+- [ ] **Perry threading** — Perry compiles TypeScript natively and may expose
+      its own worker/threading API beyond Node's `worker_threads`. Explore
+      `@perryts/perry` for any threading primitives, run CPU work off the main
+      thread, measure perf. Document what's available vs Node standard.
+
+- [ ] **Screen API** — `screen.getPrimaryDisplay()` from electron-compat. Returns
+      display resolution, scale factor, work area. Used in real apps for window
+      positioning. Unknown if in Perry shim — good compat test. Show in System page.
+
+- [ ] **Power monitor** — `powerMonitor.on("suspend" | "resume" | "on-ac" | "on-battery")`
+      from electron-compat. Apps need this to pause sync on sleep or adjust
+      behavior on battery. Unknown if in Perry shim. Show live status + event log
+      in System page.
 
 ### Phase 5 — Security
 

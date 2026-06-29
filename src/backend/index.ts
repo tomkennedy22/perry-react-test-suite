@@ -9,7 +9,6 @@ const DEV = process.env.PERRY_DEV === "1"
 
 app.setName("Perry Desktop Test Suite")
 
-
 let mainWindow: BrowserWindow | null = null
 
 const { startSubscriptions } = mountRouter(router, {

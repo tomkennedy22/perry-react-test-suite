@@ -111,6 +111,9 @@ export const router = {
       release: os.release(),
       homedir: os.homedir(),
       userData: app.getPath("userData"),
+      appName: app.getName(),
+      appVersion: app.getVersion(),
+      appLocale: (app as any).getLocale ? (app as any).getLocale() : null,
     })),
   },
 
