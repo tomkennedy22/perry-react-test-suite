@@ -7,6 +7,7 @@ import { getSqlite } from "./db/client"
 import { getMainWindow } from "./window-ref"
 import { fetchTopStories } from "./services/hackernews"
 import { loadSettings, saveSettings } from "./services/settings"
+import { logger } from "./services/logger"
 
 // ---- Procedure types ----
 
@@ -154,38 +155,45 @@ export const router = {
 
   notes: {
     list: query(async () => {
-      return getSqlite()
-        .prepare("SELECT id, body, created_at as createdAt, updated_at as updatedAt FROM notes ORDER BY created_at DESC")
-        .all() as Array<{ id: number; body: string; createdAt: number; updatedAt: number }>
+      // CAST integers to TEXT — Perry AOT returns null for INTEGER columns from .all()
+      const raw = getSqlite()
+        .prepare("SELECT CAST(id AS TEXT) as id, body, CAST(created_at AS TEXT) as createdAt, CAST(updated_at AS TEXT) as updatedAt FROM notes ORDER BY created_at DESC")
+        .all() as Array<{ id: string; body: string; createdAt: string; updatedAt: string }>
+      const rows = raw.map(r => ({ id: Number(r.id), body: r.body, createdAt: Number(r.createdAt), updatedAt: Number(r.updatedAt) }))
+      logger.info(`[notes.list] returning ${rows.length} rows, first id=${rows[0]?.id}`)
+      return rows
     }),
 
+    // NOTE: better-sqlite3 .prepare().run(params) parameter binding is silently
+    // broken under Perry AOT — params are not applied, so nothing is written.
+    // Workaround: .exec() with escaped literal SQL. .exec() takes raw SQL strings
+    // with no binding layer and works correctly.
     create: mutation(async (body: string) => {
       const validated = z.string().min(1).parse(body)
       const now = Date.now()
-      getSqlite()
-        .prepare("INSERT INTO notes (body, created_at, updated_at) VALUES (?, ?, ?)")
-        .run(validated, now, now)
+      const escaped = validated.replace(/'/g, "''")
+      getSqlite().exec(`INSERT INTO notes (body, created_at, updated_at) VALUES ('${escaped}', ${now}, ${now})`)
+      logger.info(`[notes.create] inserted body="${validated.slice(0, 40)}"`)
       return { ok: true as const }
     }),
 
     update: mutation(async (input: { id: number; body: string }) => {
       const { id, body } = z.object({ id: z.number(), body: z.string().min(1) }).parse(input)
-      getSqlite()
-        .prepare("UPDATE notes SET body = ?, updated_at = ? WHERE id = ?")
-        .run(body, Date.now(), id)
+      const escaped = body.replace(/'/g, "''")
+      getSqlite().exec(`UPDATE notes SET body = '${escaped}', updated_at = ${Date.now()} WHERE id = ${id}`)
+      logger.info(`[notes.update] id=${id}`)
       return { ok: true as const }
     }),
 
     delete: mutation(async (id: number) => {
       const validated = z.number().parse(id)
-      getSqlite()
-        .prepare("DELETE FROM notes WHERE id = ?")
-        .run(validated)
+      getSqlite().exec(`DELETE FROM notes WHERE id = ${validated}`)
+      logger.info(`[notes.delete] id=${validated}`)
       return { ok: true as const }
     }),
 
     clearAll: mutation(async () => {
-      getSqlite().prepare("DELETE FROM notes").run()
+      getSqlite().exec(`DELETE FROM notes`)
       return { ok: true as const }
     }),
   },
